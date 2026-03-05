@@ -1,0 +1,90 @@
+2026/03/06 04:00:53 Initializing System...
+2026/03/06 04:00:53 Database initialized and migrated successfully.
+2026/03/06 04:00:53 Initializing WhatsApp Client...
+2026/03/06 04:00:55 WA Connected automatically.
+2026/03/06 04:00:55 Starting Background Workers...
+2026/03/06 04:00:55 Cron job started. Will check every 2 minutes.
+2026/03/06 04:00:55 Starting Web Dashboard...
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /api/wa/status            --> juraganxl-notif/internal/api.getStatus (3 handlers)
+[GIN-debug] GET    /api/wa/qr                --> juraganxl-notif/internal/api.generateQR (3 handlers)
+[GIN-debug] POST   /api/wa/logout            --> juraganxl-notif/internal/api.logoutWA (3 handlers)
+[GIN-debug] GET    /api/wa/groups            --> juraganxl-notif/internal/api.getGroups (3 handlers)
+[GIN-debug] POST   /api/wa/groups/sync       --> juraganxl-notif/internal/api.syncGroups (3 handlers)
+[GIN-debug] POST   /api/wa/groups/settings   --> juraganxl-notif/internal/api.updateGroupSettings (3 handlers)
+[GIN-debug] GET    /api/wa/channels          --> juraganxl-notif/internal/api.getChannels (3 handlers)
+[GIN-debug] POST   /api/wa/channels/sync     --> juraganxl-notif/internal/api.syncChannels (3 handlers)
+[GIN-debug] POST   /api/wa/channels/active   --> juraganxl-notif/internal/api.setActiveChannel (3 handlers)
+[GIN-debug] POST   /api/broadcast/custom     --> juraganxl-notif/internal/api.sendCustomBroadcast (3 handlers)
+[GIN-debug] GET    /static/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (3 handlers)
+[GIN-debug] HEAD   /static/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (3 handlers)
+[GIN-debug] GET    /                         --> juraganxl-notif/internal/api.RegisterHandlers.func1 (3 handlers)
+2026/03/06 04:00:55 Starting Server on :8080
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://github.com/gin-gonic/gin/blob/master/docs/doc.md#dont-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN] 2026/03/06 - 04:00:57 | 200 |   4.04ms |             ::1 | GET      "/"
+[GIN] 2026/03/06 - 04:00:58 | 200 | 29.864µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:00:58 | 200 | 416.229µs |             ::1 | GET      "/api/wa/channels"
+[GIN] 2026/03/06 - 04:00:58 | 200 | 675.446µs |             ::1 | GET      "/api/wa/groups"
+[GIN] 2026/03/06 - 04:00:58 | 404 |    537ns |             ::1 | GET      "/favicon.ico"
+[GIN] 2026/03/06 - 04:01:01 | 200 | 11.341µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:01:04 | 200 |  19.61µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:01:04 | 200 | 165.384µs |             ::1 | GET      "/"
+[GIN] 2026/03/06 - 04:01:05 | 200 | 19.363µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:01:05 | 200 | 366.275µs |             ::1 | GET      "/api/wa/channels"
+[GIN] 2026/03/06 - 04:01:05 | 200 | 786.774µs |             ::1 | GET      "/api/wa/groups"
+[GIN] 2026/03/06 - 04:01:05 | 404 |    865ns |             ::1 | GET      "/favicon.ico"
+[GIN] 2026/03/06 - 04:01:08 | 200 | 15.748µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:01:09 | 200 | 34.999µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:01:11 | 200 |  11.67µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:01:14 | 200 | 12.786µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:01:17 | 200 |  13.09µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:01:20 | 200 |  11.67µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:01:23 | 200 | 13.671µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:01:26 | 200 | 17.706µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:01:29 | 200 | 13.176µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:01:32 | 200 | 12.628µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:01:35 | 200 | 12.752µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:01:38 | 200 |  51.28µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:01:41 | 200 | 12.371µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:01:44 | 200 | 16.311µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:01:47 | 200 | 17.126µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:01:50 | 200 | 25.683µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:01:53 | 200 |   12.8µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:01:56 | 200 |  12.39µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:01:59 | 200 | 12.705µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 04:02:00 Cron: Checking JuraganXL Stock...
+2026/03/06 04:02:00 Stock change detected! Formatting message...
+[GIN] 2026/03/06 - 04:02:02 | 200 | 17.746µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 04:02:03 Stock broadcast sent successfully.
+[GIN] 2026/03/06 - 04:02:05 | 200 | 11.891µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:02:08 | 200 | 12.633µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:02:11 | 200 | 12.825µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:02:14 | 200 | 15.043µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:02:17 | 200 | 14.475µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:02:20 | 200 | 20.794µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:02:22 | 304 | 36.605µs |             ::1 | GET      "/"
+[GIN] 2026/03/06 - 04:02:22 | 200 | 18.286µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:02:22 | 200 | 346.638µs |             ::1 | GET      "/api/wa/channels"
+[GIN] 2026/03/06 - 04:02:22 | 200 | 802.674µs |             ::1 | GET      "/api/wa/groups"
+[GIN] 2026/03/06 - 04:02:25 | 200 | 15.628µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:02:28 | 200 | 29.094µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:02:31 | 200 | 19.626µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:02:34 | 200 | 13.669µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:02:37 | 200 | 12.173µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:02:40 | 200 | 17.363µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:02:43 | 200 | 13.037µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:02:46 | 200 | 14.705µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:02:49 | 200 | 12.773µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:02:52 | 200 | 15.346µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:02:55 | 200 | 17.189µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:02:58 | 200 | 19.523µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:03:01 | 200 | 30.096µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:03:04 | 200 | 15.172µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 04:03:07 | 200 | 11.471µs |             ::1 | GET      "/api/wa/status"
