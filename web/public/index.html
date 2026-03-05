@@ -44,8 +44,36 @@
             <!-- Custom Broadcast Panel -->
             <div class="md:col-span-2 bg-white rounded-xl shadow p-6 border border-gray-100 space-y-4">
                 <h2 class="text-lg font-semibold border-b pb-2">Send Custom Notification</h2>
-                <textarea id="broadcastMsg" rows="5" class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-green-500 focus:outline-none custom-scrollbar" placeholder="Type your multi-line message here...&#10;&#10;New lines and spaces will be preserved perfectly."></textarea>
-                <button onclick="sendBroadcast()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded transition font-medium text-sm w-full md:w-auto">🚀 Send Custom Broadcast</button>
+
+                <div class="flex gap-4 mb-2">
+                    <label class="flex items-center gap-2 text-sm cursor-pointer">
+                        <input type="radio" name="msgType" value="standard" checked onclick="togglePollOpts()" class="text-green-600 focus:ring-green-500"> Standard Text
+                    </label>
+                    <label class="flex items-center gap-2 text-sm cursor-pointer" title="Requires uploading a Photo, Video, or Audio file below.">
+                        <input type="radio" name="msgType" value="view_once" onclick="togglePollOpts()" class="text-green-600 focus:ring-green-500"> View Once (Secret Media)
+                    </label>
+                    <label class="flex items-center gap-2 text-sm cursor-pointer">
+                        <input type="radio" name="msgType" value="poll" onclick="togglePollOpts()" class="text-green-600 focus:ring-green-500"> Interactive Poll
+                    </label>
+                </div>
+                
+                <div id="mediaContainer" class="hidden mb-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Upload Media (For Standard / View Once)</label>
+                    <input type="file" id="mediaUpload" accept="image/*,video/*,audio/*" class="w-full text-sm border p-2 rounded focus:ring-green-500">
+                </div>
+
+                <textarea id="broadcastMsg" rows="5" class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-green-500 focus:outline-none custom-scrollbar" placeholder="Type your multi-line message here... (If Poll, this is the Question)"></textarea>
+                
+                <div id="pollOptionsContainer" class="hidden space-y-2 mt-2">
+                    <h3 class="text-sm font-semibold text-gray-700">Poll Options</h3>
+                    <div id="pollInputs" class="space-y-2">
+                        <input type="text" class="poll-opt w-full border rounded p-2 text-sm focus:ring-2 focus:ring-green-500" placeholder="Option 1">
+                        <input type="text" class="poll-opt w-full border rounded p-2 text-sm focus:ring-2 focus:ring-green-500" placeholder="Option 2">
+                    </div>
+                    <button onclick="addPollOption()" class="text-sm text-blue-600 hover:text-blue-800 font-medium">+ Add Option</button>
+                </div>
+
+                <button onclick="sendBroadcast()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded transition font-medium text-sm w-full md:w-auto mt-4">🚀 Send Custom Broadcast</button>
             </div>
         </div>
 
@@ -184,24 +212,69 @@
         async function sendBroadcast() {
             const btn = document.querySelector('button[onclick="sendBroadcast()"]');
             const msg = document.getElementById('broadcastMsg').value;
+            const type = document.querySelector('input[name="msgType"]:checked').value;
+            const fileInput = document.getElementById('mediaUpload');
             
-            if(!msg) return alert("Message is empty");
-            if(!confirm("Send broadcast to ALL configured custom groups?")) return;
+            let options = [];
+            if (type === 'poll') {
+                const optInputs = document.querySelectorAll('.poll-opt');
+                optInputs.forEach(i => {
+                    if (i.value.trim() !== "") options.push(i.value.trim());
+                });
+                if (options.length < 2) return alert("Poll must have at least 2 valid options.");
+            }
+
+            if (type === 'view_once' && (!fileInput.files || fileInput.files.length === 0)) {
+                return alert("View Once logic REQUIRES a media attachment (Photo/Video/Audio) because WhatsApp bans Plain Text View Once. Please upload a file.");
+            }
+
+            if(!msg && (!fileInput.files || fileInput.files.length === 0)) return alert("Message or Media cannot be entirely empty");
+            if(!confirm(`Send ${type} broadcast to ALL configured custom groups?`)) return;
 
             btn.innerText = "Sending..."; btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('message', msg);
+            formData.append('msg_type', type);
+            if (type === 'poll') {
+                formData.append('poll_options', options.join("||"));
+            }
+            if (fileInput.files && fileInput.files.length > 0) {
+                formData.append('media', fileInput.files[0]);
+            }
+
             try {
                 const res = await fetch(`${API}/broadcast/custom`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({message: msg})
+                    method: 'POST',
+                    body: formData
                 });
                 const data = await res.json();
                 if(!res.ok) throw new Error(data.error);
                 alert("Broadcast Success!");
                 document.getElementById('broadcastMsg').value = '';
+                fileInput.value = '';
             } catch (e) {
                 alert("Failed: " + e.message);
             }
             btn.innerText = "🚀 Send Custom Broadcast"; btn.disabled = false;
+        }
+
+        function togglePollOpts() {
+            const type = document.querySelector('input[name="msgType"]:checked').value;
+            const pollContainer = document.getElementById('pollOptionsContainer');
+            const mediaContainer = document.getElementById('mediaContainer');
+            
+            pollContainer.style.display = type === 'poll' ? 'block' : 'none';
+            mediaContainer.style.display = type === 'poll' ? 'none' : 'block';
+        }
+        
+        // Execute initially to set state
+        togglePollOpts();
+
+        function addPollOption() {
+            const div = document.createElement('div');
+            div.innerHTML = `<input type="text" class="poll-opt w-full border rounded p-2 text-sm focus:ring-2 focus:ring-green-500 mt-2" placeholder="Another Option">`;
+            document.getElementById('pollInputs').appendChild(div);
         }
 
         function filterChannels() {

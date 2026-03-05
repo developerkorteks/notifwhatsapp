@@ -1,7 +1,9 @@
 package api
 
 import (
+	"io"
 	"net/http"
+	"strings"
 
 	"juraganxl-notif/internal/whatsapp"
 
@@ -14,7 +16,7 @@ func RegisterHandlers(r *gin.Engine) {
 		api.GET("/wa/status", getStatus)
 		api.GET("/wa/qr", generateQR)
 		api.POST("/wa/logout", logoutWA)
-		
+
 		api.GET("/wa/groups", getGroups)
 		api.POST("/wa/groups/sync", syncGroups)
 		api.POST("/wa/groups/settings", updateGroupSettings)
@@ -125,24 +127,39 @@ func setActiveChannel(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Active channel updated"})
 }
 
-type CustomBroadcastReq struct {
-	Message string `json:"message"`
-}
-
 func sendCustomBroadcast(c *gin.Context) {
-	var req CustomBroadcastReq
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	// Parse Multipart Form
+	if err := c.Request.ParseMultipartForm(10 << 20); err != nil { // limit 10MB
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse form data"})
 		return
 	}
 
-	if req.Message == "" {
+	msg := c.PostForm("message")
+	msgType := c.PostForm("msg_type")
+	pollOptsRaw := c.PostForm("poll_options")
+
+	var pollOptions []string
+	if pollOptsRaw != "" {
+		pollOptions = strings.Split(pollOptsRaw, "||")
+	}
+
+	if msg == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Message cannot be empty"})
 		return
 	}
 
-	// Will implement broadcost logic in whatsapp package soon
-	err := whatsapp.BroadcastCustomMessage(req.Message)
+	// Read optional file
+	var fileBytes []byte
+	var mimeType string
+
+	file, header, err := c.Request.FormFile("media")
+	if err == nil {
+		defer file.Close()
+		fileBytes, _ = io.ReadAll(file)
+		mimeType = header.Header.Get("Content-Type")
+	}
+
+	err = whatsapp.BroadcastCustomMessage(msg, msgType, pollOptions, fileBytes, mimeType)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

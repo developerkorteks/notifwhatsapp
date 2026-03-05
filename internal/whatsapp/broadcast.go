@@ -5,13 +5,17 @@ import (
 	"errors"
 	"juraganxl-notif/internal/db"
 	"juraganxl-notif/internal/models"
+	"strings"
+	"time"
 
+	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/proto/waE2E"
+	"go.mau.fi/whatsmeow/types"
 	"google.golang.org/protobuf/proto"
 )
 
 // BroadcastCustomMessage sends msg to Active Channel, then forwards it (sends to) all active Custom Groups
-func BroadcastCustomMessage(msg string) error {
+func BroadcastCustomMessage(msg string, msgType string, pollOptions []string, fileBytes []byte, mime string) error {
 	if WAClient == nil || !WAClient.IsConnected() {
 		return errors.New("WhatsApp client is not connected")
 	}
@@ -26,27 +30,107 @@ func BroadcastCustomMessage(msg string) error {
 		return err
 	}
 
-	// Create Text Message
-	waMsg := &waE2E.Message{
-		ExtendedTextMessage: &waE2E.ExtendedTextMessage{
-			Text: proto.String(msg),
-		},
+	var waMsg *waE2E.Message
+
+	// Optional Media Upload
+	if len(fileBytes) > 0 && mime != "" {
+		var mediaType whatsmeow.MediaType
+		var isViewOnce = proto.Bool(msgType == "view_once")
+
+		if strings.HasPrefix(mime, "image") {
+			mediaType = whatsmeow.MediaImage
+			resp, err := WAClient.Upload(context.Background(), fileBytes, mediaType)
+			if err != nil {
+				return err
+			}
+
+			waMsg = &waE2E.Message{
+				ImageMessage: &waE2E.ImageMessage{
+					Caption:       proto.String(msg),
+					Mimetype:      proto.String(mime),
+					URL:           &resp.URL,
+					DirectPath:    &resp.DirectPath,
+					MediaKey:      resp.MediaKey,
+					FileEncSHA256: resp.FileEncSHA256,
+					FileSHA256:    resp.FileSHA256,
+					FileLength:    &resp.FileLength,
+					ViewOnce:      isViewOnce,
+				},
+			}
+		} else if strings.HasPrefix(mime, "video") {
+			mediaType = whatsmeow.MediaVideo
+			resp, err := WAClient.Upload(context.Background(), fileBytes, mediaType)
+			if err != nil {
+				return err
+			}
+
+			waMsg = &waE2E.Message{
+				VideoMessage: &waE2E.VideoMessage{
+					Caption:       proto.String(msg),
+					Mimetype:      proto.String(mime),
+					URL:           &resp.URL,
+					DirectPath:    &resp.DirectPath,
+					MediaKey:      resp.MediaKey,
+					FileEncSHA256: resp.FileEncSHA256,
+					FileSHA256:    resp.FileSHA256,
+					FileLength:    &resp.FileLength,
+					ViewOnce:      isViewOnce,
+				},
+			}
+		} else if strings.HasPrefix(mime, "audio") {
+			mediaType = whatsmeow.MediaAudio
+			resp, err := WAClient.Upload(context.Background(), fileBytes, mediaType)
+			if err != nil {
+				return err
+			}
+
+			waMsg = &waE2E.Message{
+				AudioMessage: &waE2E.AudioMessage{
+					Mimetype:      proto.String(mime),
+					URL:           &resp.URL,
+					DirectPath:    &resp.DirectPath,
+					MediaKey:      resp.MediaKey,
+					FileEncSHA256: resp.FileEncSHA256,
+					FileSHA256:    resp.FileSHA256,
+					FileLength:    &resp.FileLength,
+					ViewOnce:      isViewOnce,
+				},
+			}
+		}
 	}
 
-	// 1. Send to Channel
-	resp, err := WAClient.SendMessage(context.Background(), chJID, waMsg)
-	if err != nil {
-		return err
+	if waMsg == nil {
+		if msgType == "poll" && len(pollOptions) >= 2 {
+			waMsg = WAClient.BuildPollCreation(msg, pollOptions, 1)
+		} else {
+			waMsg = &waE2E.Message{
+				ExtendedTextMessage: &waE2E.ExtendedTextMessage{
+					Text: proto.String(msg),
+				},
+			}
+		}
 	}
 
-	// 2. Attach ContextInfo to make it Forwarded from Channel
-	waMsg.ExtendedTextMessage.ContextInfo = &waE2E.ContextInfo{
-		IsForwarded: proto.Bool(true),
-		ForwardedNewsletterMessageInfo: &waE2E.ContextInfo_ForwardedNewsletterMessageInfo{
-			NewsletterJID:   proto.String(activeChannel.JID),
-			NewsletterName:  proto.String(activeChannel.ChannelName),
-			ServerMessageID: proto.Int32(int32(resp.ServerID)),
-		},
+	// 1. Send to Channel ONLY for standard text (Channels strip polls and view once)
+	if msgType == "standard" {
+		resp, err := WAClient.SendMessage(context.Background(), chJID, waMsg)
+		if err != nil {
+			return err
+		}
+
+		// 2. Attach ContextInfo to make it Forwarded from Channel
+		ctxInfo := &waE2E.ContextInfo{
+			IsForwarded: proto.Bool(true),
+			ForwardedNewsletterMessageInfo: &waE2E.ContextInfo_ForwardedNewsletterMessageInfo{
+				NewsletterJID:   proto.String(activeChannel.JID),
+				NewsletterName:  proto.String(activeChannel.ChannelName),
+				ServerMessageID: proto.Int32(int32(resp.ServerID)),
+			},
+		}
+
+		if waMsg.ExtendedTextMessage != nil {
+			waMsg.ExtendedTextMessage.ContextInfo = ctxInfo
+		}
 	}
 
 	// 3. Fetch Target Custom Groups
@@ -57,6 +141,9 @@ func BroadcastCustomMessage(msg string) error {
 	for _, g := range groups {
 		gJID, err := ParseJID(g.JID)
 		if err == nil {
+			WAClient.SendChatPresence(context.Background(), gJID, types.ChatPresenceComposing, types.ChatPresenceMediaText)
+			time.Sleep(1 * time.Second)
+			WAClient.SendChatPresence(context.Background(), gJID, types.ChatPresencePaused, types.ChatPresenceMediaText)
 			WAClient.SendMessage(context.Background(), gJID, waMsg)
 		}
 	}
@@ -111,6 +198,9 @@ func BroadcastStockMessage(msg string) error {
 	for _, g := range groups {
 		gJID, err := ParseJID(g.JID)
 		if err == nil {
+			WAClient.SendChatPresence(context.Background(), gJID, types.ChatPresenceComposing, types.ChatPresenceMediaText)
+			time.Sleep(1 * time.Second)
+			WAClient.SendChatPresence(context.Background(), gJID, types.ChatPresencePaused, types.ChatPresenceMediaText)
 			WAClient.SendMessage(context.Background(), gJID, waMsg)
 		}
 	}

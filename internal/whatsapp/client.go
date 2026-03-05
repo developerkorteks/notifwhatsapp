@@ -10,10 +10,10 @@ import (
 	"path/filepath"
 	"time"
 
+	_ "github.com/mattn/go-sqlite3"
 	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/store/sqlstore"
 	waLog "go.mau.fi/whatsmeow/util/log"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 var (
@@ -73,7 +73,7 @@ func Logout() {
 		WAClient.Disconnect()
 		WAClient = nil
 	}
-	
+
 	var conf models.AppConfig
 	db.DB.First(&conf, "key =?", "whatsmeow_db_path")
 	if conf.Value != "" {
@@ -113,8 +113,8 @@ func createNewClient(dbPath string) (*whatsmeow.Client, error) {
 
 	clientLog := waLog.Stdout("Client", "WARN", true)
 	client := whatsmeow.NewClient(deviceStore, clientLog)
-	
-	// Add event handlers here later
+
+	client.AddEventHandler(eventHandler)
 	return client, nil
 }
 

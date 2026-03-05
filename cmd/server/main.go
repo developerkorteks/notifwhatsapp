@@ -11,8 +11,9 @@ import (
 func main() {
 	log.Println("Initializing System...")
 	db.InitDB()
-	
+
 	log.Println("Initializing WhatsApp Client...")
+	whatsapp.OnRequestStock = scraper.FetchCurrentStock
 	whatsapp.InitClient()
 
 	log.Println("Starting Background Workers...")

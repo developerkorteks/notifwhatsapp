@@ -56,7 +56,7 @@ func getCircleStock(csrf string) []CircleStock {
 	return data
 }
 
-func CheckStockAndNotify() {
+func fetchStockData() ([]Paket, []CircleStock) {
 	var xdaPackages []Paket
 
 	collector := colly.NewCollector()
@@ -78,7 +78,7 @@ func CheckStockAndNotify() {
 	err := collector.Visit("https://juraganxl.my.id/")
 	if err != nil {
 		log.Println("Scrape home fail:", err)
-		return
+		return nil, nil
 	}
 
 	csrf := getCSRF()
@@ -90,6 +90,20 @@ func CheckStockAndNotify() {
 		if strings.HasPrefix(c.Config, "XCLP") {
 			filteredXCLP = append(filteredXCLP, c)
 		}
+	}
+
+	return xdaPackages, filteredXCLP
+}
+
+func FetchCurrentStock() string {
+	xda, xclp := fetchStockData()
+	return formatNotificationMessage(xda, xclp)
+}
+
+func CheckStockAndNotify() {
+	xdaPackages, filteredXCLP := fetchStockData()
+	if xdaPackages == nil && filteredXCLP == nil {
+		return
 	}
 
 	// Compare XDA
@@ -109,7 +123,7 @@ func CheckStockAndNotify() {
 		}
 
 		// Broadcast it
-		err := whatsapp.BroadcastStockMessage(msg)
+		err := whatsapp.BroadcastCustomMessage(msg, "standard", []string{}, nil, "")
 		if err != nil {
 			log.Println("Failed to broadcast stock message:", err)
 		} else {
