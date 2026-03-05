@@ -49,7 +49,7 @@
                     <label class="flex items-center gap-2 text-sm cursor-pointer">
                         <input type="radio" name="msgType" value="standard" checked onclick="togglePollOpts()" class="text-green-600 focus:ring-green-500"> Standard Text
                     </label>
-                    <label class="flex items-center gap-2 text-sm cursor-pointer" title="Requires uploading a Photo, Video, or Audio file below.">
+                    <label class="flex items-center gap-2 text-sm cursor-pointer" title="Auto-converts Text to Image if no file is uploaded.">
                         <input type="radio" name="msgType" value="view_once" onclick="togglePollOpts()" class="text-green-600 focus:ring-green-500"> View Once (Secret Media)
                     </label>
                     <label class="flex items-center gap-2 text-sm cursor-pointer">
@@ -224,9 +224,7 @@
                 if (options.length < 2) return alert("Poll must have at least 2 valid options.");
             }
 
-            if (type === 'view_once' && (!fileInput.files || fileInput.files.length === 0)) {
-                return alert("View Once logic REQUIRES a media attachment (Photo/Video/Audio) because WhatsApp bans Plain Text View Once. Please upload a file.");
-            }
+
 
             if(!msg && (!fileInput.files || fileInput.files.length === 0)) return alert("Message or Media cannot be entirely empty");
             if(!confirm(`Send ${type} broadcast to ALL configured custom groups?`)) return;

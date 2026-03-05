@@ -9,9 +9,9 @@ import (
 func StartServer() {
 	r := gin.Default()
 	RegisterHandlers(r)
-	
-	log.Println("Starting Server on :8080")
-	if err := r.Run(":8080"); err != nil {
+
+	log.Println("Starting Server on :57203")
+	if err := r.Run(":57203"); err != nil {
 		log.Fatalf("Server error: %v", err)
 	}
 }

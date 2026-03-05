@@ -5,6 +5,7 @@ import (
 	"errors"
 	"juraganxl-notif/internal/db"
 	"juraganxl-notif/internal/models"
+	"juraganxl-notif/internal/utils"
 	"strings"
 	"time"
 
@@ -31,6 +32,15 @@ func BroadcastCustomMessage(msg string, msgType string, pollOptions []string, fi
 	}
 
 	var waMsg *waE2E.Message
+
+	// Fallback Text-to-Image for View Once that lacks a file attachment
+	if msgType == "view_once" && len(fileBytes) == 0 {
+		imgBytes, err := utils.CreateTextImage(msg)
+		if err == nil {
+			fileBytes = imgBytes
+			mime = "image/png"
+		}
+	}
 
 	// Optional Media Upload
 	if len(fileBytes) > 0 && mime != "" {
