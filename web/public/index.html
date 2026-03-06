@@ -116,7 +116,7 @@
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
-        const API = 'http://localhost:8080/api';
+        const API = window.location.origin + '/api';
         
         async function fetchStatus() {
             try {
@@ -196,19 +196,21 @@
                 <div class="grid grid-cols-12 gap-2 items-center p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition border border-gray-200">
                     <span class="col-span-8 text-sm truncate" title="${g.GroupName}">${g.GroupName}</span>
                     <div class="col-span-2 text-center">
-                        <input type="checkbox" onchange="updateGroup('${g.JID}', this.checked, ${g.IsCustomActive})" ${g.IsStockActive ? 'checked' : ''} class="w-4 h-4 text-green-600 rounded">
+                        <input type="checkbox" id="stock_${g.JID}" onchange="updateGroupState('${g.JID}')" ${g.IsStockActive ? 'checked' : ''} class="w-4 h-4 text-green-600 rounded">
                     </div>
                     <div class="col-span-2 text-center">
-                        <input type="checkbox" onchange="updateGroup('${g.JID}', ${g.IsStockActive}, this.checked)" ${g.IsCustomActive ? 'checked' : ''} class="w-4 h-4 text-green-600 rounded">
+                        <input type="checkbox" id="custom_${g.JID}" onchange="updateGroupState('${g.JID}')" ${g.IsCustomActive ? 'checked' : ''} class="w-4 h-4 text-green-600 rounded">
                     </div>
                 </div>
             `).join('');
         }
 
-        async function updateGroup(jid, stock, custom) {
+        async function updateGroupState(jid) {
+            const stockChecked = document.getElementById(`stock_${jid}`).checked;
+            const customChecked = document.getElementById(`custom_${jid}`).checked;
             await fetch(`${API}/wa/groups/settings`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({jid, is_stock_active: stock, is_custom_active: custom})
+                body: JSON.stringify({jid, is_stock_active: stockChecked, is_custom_active: customChecked})
             });
         }
 

@@ -97,25 +97,30 @@ func fetchStockData() ([]Paket, []CircleStock) {
 
 func FetchCurrentStock() string {
 	xda, xclp := fetchStockData()
-	return formatNotificationMessage(xda, xclp)
+	v2 := FetchAPIV2Stock()
+	return formatNotificationMessage(xda, xclp, v2)
 }
 
 func CheckStockAndNotify() {
 	xdaPackages, filteredXCLP := fetchStockData()
-	if xdaPackages == nil && filteredXCLP == nil {
+	v2Packages := FetchAPIV2Stock()
+
+	if xdaPackages == nil && filteredXCLP == nil && v2Packages == nil {
 		return
 	}
 
 	// Compare XDA
 	xdaBytes, _ := json.Marshal(xdaPackages)
 	xclpBytes, _ := json.Marshal(filteredXCLP)
+	v2Bytes, _ := json.Marshal(v2Packages)
 
 	xdaChanged := hasChanged("XDA", string(xdaBytes))
 	xclpChanged := hasChanged("XCLP", string(xclpBytes))
+	v2Changed := hasChanged("API_V2", string(v2Bytes))
 
-	if xdaChanged || xclpChanged {
+	if xdaChanged || xclpChanged || v2Changed {
 		log.Println("Stock change detected! Formatting message...")
-		msg := formatNotificationMessage(xdaPackages, filteredXCLP)
+		msg := formatNotificationMessage(xdaPackages, filteredXCLP, v2Packages)
 
 		if msg == "" {
 			log.Println("All tracked items have 0 stock. Skipping broadcast.")
@@ -123,7 +128,7 @@ func CheckStockAndNotify() {
 		}
 
 		// Broadcast it
-		err := whatsapp.BroadcastCustomMessage(msg, "standard", []string{}, nil, "")
+		err := whatsapp.BroadcastStockMessage(msg)
 		if err != nil {
 			log.Println("Failed to broadcast stock message:", err)
 		} else {
@@ -153,7 +158,7 @@ func hasChanged(key, newData string) bool {
 	return false
 }
 
-func formatNotificationMessage(xda []Paket, xclp []CircleStock) string {
+func formatNotificationMessage(xda []Paket, xclp []CircleStock, v2 []APIV2Product) string {
 	var xdaContent strings.Builder
 	for _, p := range xda {
 		if p.Stock != "0" && p.Stock != "" {
@@ -168,13 +173,20 @@ func formatNotificationMessage(xda []Paket, xclp []CircleStock) string {
 		}
 	}
 
-	if xdaContent.Len() == 0 && xclpContent.Len() == 0 {
+	var v2Content strings.Builder
+	for _, p := range v2 {
+		if p.Stok > 0 {
+			v2Content.WriteString(fmt.Sprintf("- [%s] %s = %d\n", p.KodeProduk, p.NamaProduk, p.Stok))
+		}
+	}
+
+	if xdaContent.Len() == 0 && xclpContent.Len() == 0 && v2Content.Len() == 0 {
 		return ""
 	}
 
 	var sb strings.Builder
 
-	sb.WriteString("📢 *UPDATE STOCK XDA & XCLP*\n")
+	sb.WriteString("📢 *UPDATE STOCK TERKINI*\n")
 	sb.WriteString("===========================\n\n")
 
 	if xdaContent.Len() > 0 {
@@ -188,6 +200,14 @@ func formatNotificationMessage(xda []Paket, xclp []CircleStock) string {
 		}
 		sb.WriteString("*STOCK XCLP:*\n")
 		sb.WriteString(xclpContent.String())
+	}
+
+	if v2Content.Len() > 0 {
+		if xdaContent.Len() > 0 || xclpContent.Len() > 0 {
+			sb.WriteString("\n")
+		}
+		sb.WriteString("*STOCK PROVIDER V2:*\n")
+		sb.WriteString(v2Content.String())
 	}
 
 	sb.WriteString("\n===========================\n")
