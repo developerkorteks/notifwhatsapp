@@ -2,6 +2,7 @@ package whatsapp
 
 import (
 	"context"
+	"crypto/rand"
 	"errors"
 	"juraganxl-notif/internal/db"
 	"juraganxl-notif/internal/models"
@@ -113,11 +114,39 @@ func BroadcastCustomMessage(msg string, msgType string, pollOptions []string, fi
 		if msgType == "poll" && len(pollOptions) >= 2 {
 			waMsg = WAClient.BuildPollCreation(msg, pollOptions, 1)
 		} else {
-			waMsg = &waE2E.Message{
-				ExtendedTextMessage: &waE2E.ExtendedTextMessage{
-					Text: proto.String(msg),
-				},
+			extended := &waE2E.ExtendedTextMessage{
+				Text: proto.String(msg),
 			}
+			if msgType == "swgc" {
+				fontType := waE2E.ExtendedTextMessage_SYSTEM
+				extended.BackgroundArgb = proto.Uint32(0xFF0F8A5F) // WhatsApp green tint
+				extended.TextArgb = proto.Uint32(0xFFFFFFFF)
+				extended.Font = &fontType
+			}
+
+			waMsg = &waE2E.Message{
+				ExtendedTextMessage: extended,
+			}
+		}
+	}
+
+	if msgType == "swgc" {
+		messageSecret := make([]byte, 32)
+		rand.Read(messageSecret)
+
+		innerMsg := waMsg
+		if innerMsg.MessageContextInfo == nil {
+			innerMsg.MessageContextInfo = &waE2E.MessageContextInfo{}
+		}
+		innerMsg.MessageContextInfo.MessageSecret = messageSecret
+
+		waMsg = &waE2E.Message{
+			MessageContextInfo: &waE2E.MessageContextInfo{
+				MessageSecret: messageSecret,
+			},
+			GroupStatusMessageV2: &waE2E.FutureProofMessage{
+				Message: innerMsg,
+			},
 		}
 	}
 

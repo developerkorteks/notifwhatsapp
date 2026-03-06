@@ -1,10 +1,9 @@
-2026/03/06 04:54:05 Initializing System...
-2026/03/06 04:54:05 Database initialized and migrated successfully.
-2026/03/06 04:54:05 Initializing WhatsApp Client...
-2026/03/06 04:54:06 WA Connected automatically.
-2026/03/06 04:54:06 Starting Background Workers...
-2026/03/06 04:54:06 Cron job started. Will check every 2 minutes.
-2026/03/06 04:54:06 Starting Web Dashboard...
+2026/03/06 08:47:55 Initializing System...
+2026/03/06 08:47:55 Database initialized and migrated successfully.
+2026/03/06 08:47:55 Initializing WhatsApp Client...
+2026/03/06 08:47:55 Starting Background Workers...
+2026/03/06 08:47:55 Cron job started. Will check every 2 minutes.
+2026/03/06 08:47:55 Starting Web Dashboard...
 [GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
 
 [GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
@@ -24,196 +23,15 @@
 [GIN-debug] GET    /static/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (3 handlers)
 [GIN-debug] HEAD   /static/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (3 handlers)
 [GIN-debug] GET    /                         --> juraganxl-notif/internal/api.RegisterHandlers.func1 (3 handlers)
-2026/03/06 04:54:06 Starting Server on :8080
+2026/03/06 08:47:55 Starting Server on :57203
 [GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
 Please check https://github.com/gin-gonic/gin/blob/master/docs/doc.md#dont-trust-all-proxies for details.
-[GIN-debug] Listening and serving HTTP on :8080
-[GIN] 2026/03/06 - 04:54:09 | 200 | 65.649µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:54:11 | 200 |   1.68ms |             ::1 | GET      "/"
-[GIN] 2026/03/06 - 04:54:11 | 200 | 30.004µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:54:11 | 200 | 624.256µs |             ::1 | GET      "/api/wa/channels"
-[GIN] 2026/03/06 - 04:54:11 | 200 | 642.028µs |             ::1 | GET      "/api/wa/groups"
-[GIN] 2026/03/06 - 04:54:14 | 200 | 16.967µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:54:14 | 304 | 41.874µs |             ::1 | GET      "/"
-[GIN] 2026/03/06 - 04:54:14 | 200 | 21.414µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:54:14 | 200 | 420.007µs |             ::1 | GET      "/api/wa/channels"
-[GIN] 2026/03/06 - 04:54:14 | 200 | 853.835µs |             ::1 | GET      "/api/wa/groups"
-[GIN] 2026/03/06 - 04:54:17 | 200 | 14.226µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:54:20 | 200 | 13.467µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:54:23 | 200 | 17.548µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:54:26 | 200 | 13.847µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:54:29 | 200 | 13.454µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:54:32 | 200 | 14.584µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:54:35 | 200 | 12.455µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:54:38 | 200 | 14.006µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:54:41 | 200 | 14.931µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:54:44 | 200 | 14.135µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:54:47 | 200 | 15.277µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:54:50 | 200 | 14.281µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:54:54 | 200 |  16.55µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:54:56 | 200 | 14.879µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:54:58 | 200 |    3.26s |             ::1 | POST     "/api/broadcast/custom"
-[GIN] 2026/03/06 - 04:55:19 | 200 | 26.344µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:55:20 | 200 | 14.175µs |             ::1 | GET      "/api/wa/status"
-2026/03/06 04:55:22 [EVENT] Incoming message from 120363423591971833@g.us: ''
-[GIN] 2026/03/06 - 04:55:23 | 200 | 16.681µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:55:26 | 200 | 16.978µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:55:29 | 200 | 15.171µs |             ::1 | GET      "/api/wa/status"
-2026/03/06 04:55:32 [EVENT] Incoming message from 120363213303517295@newsletter: 'apa apa klik bait🤣  sunggug bodoh sekali🤣
-cuanku real dari game yang ku share di channel ku🤣 bukan cuma bikin konten kaya orang-orang yang cari cuannya di youtube 🤣
-banyak youtuber ngaku gamer🤣'
-[GIN] 2026/03/06 - 04:55:32 | 400 | 294.811µs |             ::1 | POST     "/api/broadcast/custom"
-2026/03/06 04:55:33 [EVENT] Incoming message from 120363420385250482@newsletter: ''
-[GIN] 2026/03/06 - 04:55:34 | 200 | 29.731µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:55:35 | 200 | 16.345µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:55:39 | 200 | 13.207µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:55:41 | 200 | 24.979µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:55:42 | 200 |    2.54s |             ::1 | POST     "/api/broadcast/custom"
-[GIN] 2026/03/06 - 04:55:45 | 200 | 15.851µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:55:47 | 200 | 12.901µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:55:50 | 200 | 15.419µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:55:53 | 200 | 15.914µs |             ::1 | GET      "/api/wa/status"
-2026/03/06 04:55:55 [EVENT] Incoming message from 120363423286058962@newsletter: ''
-[GIN] 2026/03/06 - 04:55:56 | 200 | 15.384µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:55:59 | 200 | 14.818µs |             ::1 | GET      "/api/wa/status"
-2026/03/06 04:56:00 Cron: Checking JuraganXL Stock...
-2026/03/06 04:56:00 No stock changes.
-[GIN] 2026/03/06 - 04:56:02 | 200 | 13.144µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:56:05 | 200 | 12.439µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:56:08 | 200 | 13.073µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:56:11 | 200 | 13.194µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:56:14 | 200 | 27.408µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:56:18 | 200 | 19.794µs |             ::1 | GET      "/api/wa/status"
-2026/03/06 04:56:21 [EVENT] Incoming message from 120363400345580872@g.us: ''
-2026/03/06 04:56:21 [EVENT] Incoming message from 120363400345580872@g.us: ''
-[GIN] 2026/03/06 - 04:56:21 | 200 | 15.269µs |             ::1 | GET      "/api/wa/status"
-2026/03/06 04:56:23 [EVENT] Incoming message from 120363400345580872@g.us: ''
-2026/03/06 04:56:23 [EVENT] Incoming message from 120363400345580872@g.us: '🚫 *grup belum sewa*
-
-silakan hubungi owner untuk menyewa bot.
-owner: wa.me/6287733976909'
-[GIN] 2026/03/06 - 04:56:24 | 200 | 28.731µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:56:27 | 200 | 18.748µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:56:30 | 200 | 20.481µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:56:33 | 200 | 15.249µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:56:36 | 200 | 15.155µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:56:39 | 200 | 17.719µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:56:41 | 200 | 15.317µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:56:44 | 200 | 17.917µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:56:47 | 200 | 15.507µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:56:50 | 200 | 12.656µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:56:53 | 200 | 17.276µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:56:56 | 200 | 10.476µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:56:59 | 200 | 17.082µs |             ::1 | GET      "/api/wa/status"
-2026/03/06 04:57:00 [EVENT] Incoming message from 120363420243864186@g.us: ''
-2026/03/06 04:57:00 [EVENT] Incoming message from 120363420243864186@g.us: '🔥 *vpn premium catalog* 🔥
-
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-🌐 *vpn services*
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-
-🚀 *protocols:*
-• trojan grpc/ws • vmess grpc/ws
-• vless grpc/ws • ssh websocket
-• multipath • wildcard
-
-🌍 *servers:*
-🇮🇩 id: wa.me/6287786388052
-🇸🇬 sg: t.me/grnstoreofficial_bot
-
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-
-🛒 *paket data group 7*
-
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-⚡ *promo terbatas!*
-_stok menipis, buruan order!_
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-
-📋 *daftar paket:*
-
-📱 *tambah masa aktif kartu telkomsel 3 bulan* - rp. 37.500,00
-
-📱 *tambah masa aktif kartu telkomsel 1 bulan* - rp. 16.500,00
-
-📱 *tambah masa aktif kartu indosat 1 bulan* - rp. 13.500,00
-
-📱 *xl xtra combo 5gb + 10gb vip double youtube 30 hari* - rp. 72.500,00
-
-📱 *bonus kuota xtra combo plus/vip plus whatsapp 10gb* - rp. 2.500,00
-
-📱 *bonus kuota xtra combo plus/vip plus tiktok 10gb* - rp. 2.500,00
-
-📱 *bonus kuota xtra combo plus/vip plus facebook 10gb* - rp. 2.500,00
-
-📱 *bonus kuota xtra combo plus/vip plus instagram 10gb* - rp. 2.500,00
-
-📱 *bonus kuota xtra combo plus/vip plus whatsapp 10gb* - rp. 2.500,00
-
-📱 *bonus kuota xtra combo plus/vip plus tiktok 10gb* - rp. 2.500,00
-
-📱 *bonus kuota xtra combo plus/vip plus facebook 10gb* - rp. 2.500,00
-
-📱 *bonus kuota xtra combo plus/vip plus instagram 10gb* - rp. 2.500,00
-
-📱 *bonus kuota xtra combo plus/vip plus 15gb streaming iflix, viu, youtube* - rp. 3.000,00
-
-📱 *bonus kuota xtra combo plus/vip plus 15gb streaming iflix, viu, youtube* - rp. 3.000,00
-
-📱 *unlimited turbo netflix untuk xtra combo* - rp. 1.500,00
-
-
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-
-✅ *resmi* = garansi penuh 
-⚠️ *dor* = tanpa garansi
-💰 *harga* = harga/jasa dor
-
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-🔥 *vpn premium features*
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-
-🌐 *vpn features:*
-• ⚡ high speed • 🔒 military encryption
-• 🌍 multi server • 📱 all device
-• 🛡️ no log • 🔄 24/7 reconnect
-
-🚀 *advanced protocols:*
-• trojan-grpc (ultra fast)
-• vmess-ws (stable) 
-• vless-grpc (low latency)
-• ssh-ws (bypass dpi)
-• multipath custom • wildcard
-
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-📞 *order center*
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-
-🇮🇩 *vpn id:* wa.me/6287786388052
-🇸🇬 *vpn sg:* t.me/grnstoreofficial_bot
-
-🛒 *paket data:*
-📱 wa.me/6287786388052
-🤖 t.me/grnstoreofficial_bot
-
-👨‍💼 *admin:*
-📱 wa.me/6287786388052
-📱 wa.me/6285117557905
-
-👥 *group:* chat.whatsapp.com/ieixondiofr0apnlkzghuc
-
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-
-🟢 *buka:* 01:00 - 23:00 wib
-⏰ *buruan order!* stok terbatas!
-
-#paketdata #vpnpremium #grnstore'
-[GIN] 2026/03/06 - 04:57:02 | 200 | 11.299µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:57:05 | 200 | 21.058µs |             ::1 | GET      "/api/wa/status"
-2026/03/06 04:57:07 [EVENT] Incoming message from 120363421793749559@g.us: 'nggih'
-2026/03/06 04:57:07 [EVENT] Incoming message from 120363400345580872@g.us: ''
-[GIN] 2026/03/06 - 04:57:08 | 200 | 10.638µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:57:11 | 200 | 15.059µs |             ::1 | GET      "/api/wa/status"
-[GIN] 2026/03/06 - 04:57:14 | 200 |  25.69µs |             ::1 | GET      "/api/wa/status"
-2026/03/06 04:57:15 [EVENT] Incoming message from 120363400654037217@g.us: ''
-2026/03/06 04:57:15 [EVENT] Incoming message from 120363400654037217@g.us: ''
+[GIN-debug] Listening and serving HTTP on :57203
+2026/03/06 08:48:00 Cron: Checking JuraganXL Stock...
+2026/03/06 08:48:00 Stock change detected! Formatting message...
+2026/03/06 08:48:00 Failed to broadcast stock message: WhatsApp client is not connected
+[GIN] 2026/03/06 - 08:49:53 | 200 |   1.64ms |             ::1 | GET      "/"
+[GIN] 2026/03/06 - 08:49:53 | 404 |    661ns |             ::1 | GET      "/favicon.ico"
+2026/03/06 08:50:00 Cron: Checking JuraganXL Stock...
+2026/03/06 08:50:00 Stock change detected! Formatting message...
+2026/03/06 08:50:00 Failed to broadcast stock message: WhatsApp client is not connected
