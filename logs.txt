@@ -252,3 +252,590 @@ semua paket ready & bisa langsung order!
 [GIN] 2026/03/06 - 09:16:58 | 200 | 10.679µs |             ::1 | GET      "/api/wa/status"
 [GIN] 2026/03/06 - 09:17:01 | 200 | 10.529µs |             ::1 | GET      "/api/wa/status"
 [GIN] 2026/03/06 - 09:17:04 | 200 |  13.56µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:17:07 | 200 | 12.223µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:17:09 [EVENT] Incoming message from 120363419913453834@g.us: 'gas.. xda'
+[GIN] 2026/03/06 - 09:17:10 | 200 | 17.234µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:17:13 | 200 | 12.678µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:17:16 | 200 | 14.691µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:17:19 | 200 |  13.92µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:17:22 | 200 |  14.51µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:17:23 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda31) • 57.000 • 31–48gb : 66 tersedia
+▫️ (xda63) • 82.000 • 63–80gb : 35 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:17:21*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+[GIN] 2026/03/06 - 09:17:25 | 200 | 13.109µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:17:27 [EVENT] Incoming message from 120363406383419072@g.us: 'yanng nunggu paket murah paket b1 ready 2 orang ya.
+
+paket b1 
+pendaftaran rp50.000 
+gaji rp250.000 /3jam .
+
+ready ya sama setelah daftar juga bisa langsung ambil gajian diawal ya.'
+2026/03/06 09:17:28 [EVENT] Incoming message from 120363385601246656@g.us: ''
+2026/03/06 09:17:28 [EVENT] Incoming message from 120363385601246656@g.us: 'widihhh'
+[GIN] 2026/03/06 - 09:17:28 | 200 | 17.754µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:17:31 | 200 | 15.432µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:17:34 | 200 | 13.491µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:17:37 | 200 | 24.878µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:17:40 | 200 | 12.454µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:17:43 [EVENT] Incoming message from 120363423388318752@g.us: ''
+2026/03/06 09:17:43 [EVENT] Incoming message from 120363423388318752@g.us: 'untuk bergabung dengan rapat video, klik link ini: https://meet.google.com/opq-jntb-hmk
+atau, untuk bergabung melalui ponsel, hubungi +1 510-838-1406 dan masukkan pin ini: 145 486 256#'
+[GIN] 2026/03/06 - 09:17:43 | 200 | 12.425µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:17:46 | 200 | 17.689µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:17:49 | 200 | 13.461µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:17:52 | 200 | 12.342µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:17:53 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda13) • 43.000 • 13–30gb : 41 tersedia
+▫️ (xda50) • 72.000 • 50–67gb : 67 tersedia
+▫️ (xda76) • 89.000 • 76–93gb : 48 tersedia
+▫️ (xda88) • 99.000 • 88–105gb : 77 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:17:52*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+[GIN] 2026/03/06 - 09:17:55 | 200 | 13.895µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:17:58 | 200 | 13.309µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:18:00 Cron: Checking JuraganXL Stock...
+2026/03/06 09:18:00 Stock change detected! Formatting message...
+[GIN] 2026/03/06 - 09:18:01 | 200 | 15.646µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:18:02 Stock broadcast sent successfully.
+[GIN] 2026/03/06 - 09:18:04 | 200 | 12.778µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:18:07 | 200 | 14.845µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:18:10 | 200 | 15.418µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:18:13 | 200 | 12.729µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:18:16 | 200 | 15.222µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:18:19 | 200 | 15.186µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:18:22 | 200 | 10.549µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:18:24 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda13) • 43.000 • 13–30gb : 46 tersedia
+▫️ (xda31) • 57.000 • 31–48gb : 63 tersedia
+▫️ (xda38) • 62.000 • 38–55gb : 123 tersedia
+▫️ (xda50) • 72.000 • 50–67gb : 69 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:18:22*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+[GIN] 2026/03/06 - 09:18:25 | 200 | 25.647µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:18:28 | 200 | 12.033µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:18:31 | 200 |  12.77µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:18:35 | 200 | 15.031µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:18:38 | 200 | 14.624µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:18:41 | 200 | 15.411µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:18:44 | 200 | 13.858µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:18:47 | 200 |  16.67µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:18:50 | 200 | 22.599µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:18:53 | 200 | 15.368µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:18:54 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda88) • 99.000 • 88–105gb : 69 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:18:52*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+[GIN] 2026/03/06 - 09:18:56 | 200 | 15.045µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:18:59 | 200 | 22.024µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:19:02 | 200 | 17.005µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:19:05 | 200 | 17.532µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:19:08 | 200 | 30.316µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:19:11 | 200 | 12.322µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:19:14 | 200 |  23.42µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:19:17 | 200 | 31.371µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:19:20 | 200 |  14.35µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:19:23 | 200 | 17.795µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:19:23 [EVENT] Incoming message from 120363423388318752@g.us: 'kita mulai jam 9.30'
+2026/03/06 09:19:24 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda19) • 47.000 • 19–36gb : 68 tersedia
+▫️ (xda25) • 52.000 • 25–42gb : 88 tersedia
+▫️ (xda31) • 57.000 • 31–48gb : 55 tersedia
+▫️ (xda50) • 72.000 • 50–67gb : 56 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:19:22*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+[GIN] 2026/03/06 - 09:19:26 | 200 | 20.052µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:19:29 | 200 | 12.849µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:19:32 | 200 | 16.644µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:19:55 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda88) • 99.000 • 88–105gb : 72 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:19:53*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+2026/03/06 09:19:59 [EVENT] Incoming message from 120363385601246656@g.us: ''
+2026/03/06 09:19:59 [EVENT] Incoming message from 120363385601246656@g.us: '.tt https://vt.tiktok.com/zsudtg4ax/'
+2026/03/06 09:20:00 Cron: Checking JuraganXL Stock...
+2026/03/06 09:20:00 Stock change detected! Formatting message...
+2026/03/06 09:20:02 Stock broadcast sent successfully.
+[GIN] 2026/03/06 - 09:20:10 | 200 | 13.826µs |             ::1 | GET      "/api/wa/status"
+09:20:16.649[33m [Client WARN] Error decrypting message 3EB0B419FAE776DC8E8843 from 277258006737059:3@lid in 120363385601246656@g.us: failed to decrypt group message: no sender key for 277258006737059_1:3 in 120363385601246656@g.us[0m
+2026/03/06 09:20:30 [EVENT] Incoming message from 120363385601246656@g.us: ''
+2026/03/06 09:20:30 [EVENT] Incoming message from 120363385601246656@g.us: ''
+2026/03/06 09:20:37 [EVENT] Incoming message from 120363401628116944@g.us: ''
+2026/03/06 09:20:37 [EVENT] Incoming message from 120363401628116944@g.us: 'info stok yang tersedia klik di sini 
+https://juraganxl.my.id/
+
+keterangan 
+xda = paket akrab 
+xclp = paket circle'
+2026/03/06 09:20:50 [EVENT] Incoming message from 120363401628116944@g.us: 'stok ada sedikit'
+2026/03/06 09:20:56 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda38) • 62.000 • 38–55gb : 112 tersedia
+▫️ (xda88) • 99.000 • 88–105gb : 71 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:20:54*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+2026/03/06 09:21:07 [EVENT] Incoming message from 120363402083941104@g.us: ''
+2026/03/06 09:21:07 [EVENT] Incoming message from 120363402083941104@g.us: '📦 *akrab super mini* – rp46.000
+• area 1: 13 – 15 gb
+• area 2: 15 – 17 gb
+• area 3: 20 – 22 gb
+• area 4: 30 – 32 gb
+masa aktif 27/28 hari
+
+📦 *super mini v2* – rp50.000
+• area 1: 19 gb
+• area 2: 21 gb
+• area 3: 26 gb
+• area 4: 36 gb
+masa aktif 28 hari
+resmi & bergaransi
+
+📦 *akrab extra mini* – rp55.000
+• area 1: 25 gb
+• area 2: 27 gb
+• area 3: 32 gb
+• area 4: 42 gb
+masa aktif 27/28 hari
+
+📦 *akrab mini* – rp59.000
+• area 1: 31.75 – 33.75 gb
+• area 2: 33.75 – 35.75 gb
+• area 3: 38.75 – 40.75 gb
+• area 4: 48.75 – 50.75 gb
+masa aktif 27/28 hari
+
+📦 *akrab big v2* – rp65.000
+• area 1: 38 – 40 gb
+• area 2: 40 – 42 gb
+• area 3: 45 – 47 gb
+• area 4: 55 – 57 gb
+masa aktif 27/28 hari
+
+📦 *jumbo v2* – rp73.000
+• area 1: 50.5 – 52.5 gb
+• area 2: 52.5 – 54.5 gb
+• area 3: 57.5 – 59.5 gb
+• area 4: 67.5 – 69.5 gb
+masa aktif 27/28 hari'
+[GIN] 2026/03/06 - 09:21:10 | 200 | 18.132µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:21:13 [EVENT] Incoming message from 120363402083941104@g.us: 'promo ready'
+2026/03/06 09:21:16 [EVENT] Incoming message from 120363402083941104@g.us: 'satset'
+2026/03/06 09:21:26 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda25) • 52.000 • 25–42gb : 85 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:21:24*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+2026/03/06 09:21:56 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda19) • 47.000 • 19–36gb : 65 tersedia
+▫️ (xda31) • 57.000 • 31–48gb : 94 tersedia
+▫️ (xda50) • 72.000 • 50–67gb : 72 tersedia
+▫️ (xda76) • 89.000 • 76–93gb : 43 tersedia
+▫️ (xda88) • 99.000 • 88–105gb : 70 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:21:54*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+2026/03/06 09:22:00 Cron: Checking JuraganXL Stock...
+2026/03/06 09:22:00 Stock change detected! Formatting message...
+2026/03/06 09:22:02 Stock broadcast sent successfully.
+[GIN] 2026/03/06 - 09:22:10 | 200 | 13.479µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:22:27 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda31) • 57.000 • 31–48gb : 98 tersedia
+▫️ (xda50) • 72.000 • 50–67gb : 74 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:22:24*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+2026/03/06 09:22:35 [EVENT] Incoming message from 190439403585755@lid: 'iya masih ilang. tapi aku punya kartu xl lagi masih bisa.'
+2026/03/06 09:22:48 [EVENT] Incoming message from 120363421793749559@g.us: ''
+2026/03/06 09:22:48 [EVENT] Incoming message from 120363421793749559@g.us: 'yg unlimited game'
+2026/03/06 09:22:54 [EVENT] Incoming message from 120363421793749559@g.us: 'bisa'
+2026/03/06 09:22:57 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda25) • 52.000 • 25–42gb : 82 tersedia
+▫️ (xda38) • 62.000 • 38–55gb : 97 tersedia
+▫️ (xda63) • 82.000 • 63–80gb : 19 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:22:55*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+[GIN] 2026/03/06 - 09:23:10 | 200 | 19.169µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:23:28 [EVENT] Incoming message from 120363421793749559@g.us: 'macem2, ane pake yg 2gb/hari'
+2026/03/06 09:23:59 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda19) • 47.000 • 19–36gb : 61 tersedia
+▫️ (xda25) • 52.000 • 25–42gb : 83 tersedia
+▫️ (xda38) • 62.000 • 38–55gb : 94 tersedia
+▫️ (xda50) • 72.000 • 50–67gb : 70 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:23:55*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+2026/03/06 09:24:00 Cron: Checking JuraganXL Stock...
+2026/03/06 09:24:00 Stock change detected! Formatting message...
+2026/03/06 09:24:02 Stock broadcast sent successfully.
+2026/03/06 09:24:09 [EVENT] Incoming message from 120363423591971833@g.us: ''
+2026/03/06 09:24:09 [EVENT] Incoming message from 120363423591971833@g.us: 'redmi 9a . kondisi sesuai dividio
+kelengkapan ada buku" . box. casan. dll selebihnya inbox. atau wa saya
+ram 3, internal 32
+lokasi ciledug. mahar 500  
+bt setara juga boleh'
+[GIN] 2026/03/06 - 09:24:10 | 200 | 18.627µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:24:48 [EVENT] Incoming message from 120363423591971833@g.us: ''
+2026/03/06 09:24:48 [EVENT] Incoming message from 120363423591971833@g.us: 'redmi 9a . kondisi sesuai dividio
+kelengkapan ada buku" . box. casan. dll selebihnya inbox. atau wa saya
+ram 3, internal 32
+lokasi ciledug. mahar 500  
+bt setara juga boleh'
+2026/03/06 09:24:59 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda88) • 99.000 • 88–105gb : 63 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:24:56*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+[GIN] 2026/03/06 - 09:25:10 | 200 | 15.547µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:25:19 [EVENT] Incoming message from 120363423591971833@g.us: ''
+2026/03/06 09:25:29 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda31) • 57.000 • 31–48gb : 80 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:25:27*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+2026/03/06 09:25:59 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda19) • 47.000 • 19–36gb : 56 tersedia
+▫️ (xda50) • 72.000 • 50–67gb : 63 tersedia
+▫️ (xda76) • 89.000 • 76–93gb : 40 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:25:57*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+2026/03/06 09:26:00 Cron: Checking JuraganXL Stock...
+2026/03/06 09:26:00 Stock change detected! Formatting message...
+2026/03/06 09:26:02 Stock broadcast sent successfully.
+[GIN] 2026/03/06 - 09:26:10 | 200 | 12.684µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:26:53 [EVENT] Incoming message from 120363191147667093@g.us: ''
+2026/03/06 09:26:53 [EVENT] Incoming message from 120363191147667093@g.us: ''
+2026/03/06 09:27:00 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda50) • 72.000 • 50–67gb : 64 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:26:58*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+[GIN] 2026/03/06 - 09:27:10 | 200 | 13.084µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:27:10 [EVENT] Incoming message from 120363421793749559@g.us: ''
+2026/03/06 09:27:30 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda25) • 52.000 • 25–42gb : 73 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:27:28*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+2026/03/06 09:28:00 Cron: Checking JuraganXL Stock...
+2026/03/06 09:28:00 Stock change detected! Formatting message...
+2026/03/06 09:28:00 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda19) • 47.000 • 19–36gb : 50 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:27:58*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+2026/03/06 09:28:00 [EVENT] Incoming message from 120363313605520312@newsletter: '『𝗦𝗮𝘄𝗶𝘁 𝗠𝘂𝗹𝘁𝗶𝗱𝗲𝘃𝗶𝗰𝗲 | 𝗥𝗮𝗺𝗮𝗱𝗵𝗮𝗻 𝗪𝗮𝗯𝗼𝘁』
+
+https://youtu.be/-_fitj1dc7c?si=jgzbttxj5scrs5gr
+
+- no enc full
+- no backdor
+- fitur islamic ( doa, syair, sholawat )
+- buttons
+- playch buttons
+- pushkontak auto save
+- jpm
+- jpmch
+
+link: di komentar youtube
+
+_channel pembuat dan group bot_
+
+https://whatsapp.com/channel/0029vb6jjyf8kmqtrgjzjy0y
+
+https://chat.whatsapp.com/gsl9wyvnj9phxrktav5dfh?mode=hqctcla'
+2026/03/06 09:28:02 Stock broadcast sent successfully.
+[GIN] 2026/03/06 - 09:28:10 | 200 | 14.134µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:28:31 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda25) • 52.000 • 25–42gb : 72 tersedia
+▫️ (xda76) • 89.000 • 76–93gb : 37 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:28:29*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+2026/03/06 09:28:57 [EVENT] Incoming message from 120363424808777993@newsletter: 'trx xda aman dan lancar yah kaka kaka'
+2026/03/06 09:29:03 [EVENT] Incoming message from 120363313605520312@newsletter: 'assalamualaikum semua vy mau share ini free for all mohon bantuannya ya creator ytb atau creator bot wa owner bot dll buat share 
+
+bot whatsapp untuk mengelola dan memesan layanan smm secara otomatis menggunakan provider https://vtechsmm.biz.id. mendukung order, cek status, dan integrasi api panel.
+repo:
+https://github.com/vynaavalerie/vtechsmm-panel'
+[GIN] 2026/03/06 - 09:29:10 | 200 | 14.652µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:29:31 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda25) • 52.000 • 25–42gb : 71 tersedia
+▫️ (xda38) • 62.000 • 38–55gb : 71 tersedia
+▫️ (xda76) • 89.000 • 76–93gb : 38 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:29:29*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+2026/03/06 09:30:00 Cron: Checking JuraganXL Stock...
+2026/03/06 09:30:00 Stock change detected! Formatting message...
+2026/03/06 09:30:01 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda50) • 72.000 • 50–67gb : 58 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:29:59*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+2026/03/06 09:30:02 Stock broadcast sent successfully.
+[GIN] 2026/03/06 - 09:30:10 | 200 | 17.429µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:30:32 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda76) • 89.000 • 76–93gb : 36 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:30:30*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+2026/03/06 09:31:02 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda19) • 47.000 • 19–36gb : 38 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:31:00*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+[GIN] 2026/03/06 - 09:31:10 | 200 | 20.122µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:31:27 [EVENT] Incoming message from 120363423591971833@g.us: ''
+2026/03/06 09:31:32 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda25) • 52.000 • 25–42gb : 67 tersedia
+▫️ (xda31) • 57.000 • 31–48gb : 62 tersedia
+▫️ (xda38) • 62.000 • 38–55gb : 59 tersedia
+▫️ (xda63) • 82.000 • 63–80gb : 11 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:31:30*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+2026/03/06 09:32:00 Cron: Checking JuraganXL Stock...
+2026/03/06 09:32:00 Stock change detected! Formatting message...
+2026/03/06 09:32:02 Stock broadcast sent successfully.
+2026/03/06 09:32:03 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda19) • 47.000 • 19–36gb : 32 tersedia
+▫️ (xda76) • 89.000 • 76–93gb : 36 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:32:01*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+[GIN] 2026/03/06 - 09:32:10 | 200 | 29.683µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:32:13 [EVENT] Incoming message from 120363423591971833@g.us: ''
