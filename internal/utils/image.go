@@ -9,42 +9,88 @@ import (
 	"strings"
 
 	"golang.org/x/image/font"
-	"golang.org/x/image/font/basicfont"
+	"golang.org/x/image/font/gofont/goregular"
+	"golang.org/x/image/font/opentype"
 	"golang.org/x/image/math/fixed"
 )
 
-// CreateTextImage creates a black image with the provided white text on it.
+// CreateTextImage creates an elegant, gradient poster-like image for plain text.
 func CreateTextImage(text string) ([]byte, error) {
-	// Standard width, dynamic height based on lines
-	width := 800
-	lines := strings.Split(text, "\n")
+	parsedFont, err := opentype.Parse(goregular.TTF)
+	if err != nil {
+		return nil, err
+	}
 
-	// approximate height: 50 top padding + (lines * 20 spacing) + 50 bottom padding
-	height := 50 + (len(lines) * 20) + 50
+	face, err := opentype.NewFace(parsedFont, &opentype.FaceOptions{
+		Size:    28,
+		DPI:     72,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		return nil, err
+	}
+	defer face.Close()
+
+	lines := strings.Split(text, "\n")
+	lineHeight := 40
+	paddingX := 40
+	paddingY := 60
+	width := 800
+
+	height := (len(lines) * lineHeight) + (paddingY * 2)
 	if height < 400 {
 		height = 400
 	}
 
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
-	// Draw a stark black background
-	draw.Draw(img, img.Bounds(), &image.Uniform{color.RGBA{0, 0, 0, 255}}, image.Point{}, draw.Src)
 
-	// White Text
-	col := color.RGBA{255, 255, 255, 255}
+	// Draw an elegant gradient background (Dark Navy to Slate)
+	for y := 0; y < height; y++ {
+		ratio := float64(y) / float64(height)
+		r := uint8(23 - (ratio * (23 - 2)))
+		g := uint8(37 - (ratio * (37 - 6)))
+		b := uint8(84 - (ratio * (84 - 23)))
 
-	y := 50
+		c := color.RGBA{R: r, G: g, B: b, A: 255}
+		for x := 0; x < width; x++ {
+			img.Set(x, y, c)
+		}
+	}
 
+	// Add a subtle border
+	borderColor := color.RGBA{R: 56, G: 189, B: 248, A: 100}
+	draw.Draw(img, image.Rect(10, 10, width-10, height-10), &image.Uniform{C: color.RGBA{R: 0, G: 0, B: 0, A: 0}}, image.Point{}, draw.Over)
+	for y := 10; y < height-10; y++ {
+		img.Set(10, y, borderColor)
+		img.Set(width-10, y, borderColor)
+	}
+	for x := 10; x < width-10; x++ {
+		img.Set(x, 10, borderColor)
+		img.Set(x, height-10, borderColor)
+	}
+
+	textColor := color.RGBA{R: 248, G: 250, B: 252, A: 255}
+
+	// Draw text
+	startY := paddingY + 28
 	for _, line := range lines {
-		// Use fixed point math equivalent to integer pixel precision 20, y
-		point := fixed.Point26_6{X: fixed.I(20), Y: fixed.I(y)}
+		advance := font.MeasureString(face, line)
+		lineWidth := advance.Round()
+		startX := (width - lineWidth) / 2
+		if startX < paddingX {
+			startX = paddingX
+		}
+
+		point := fixed.Point26_6{X: fixed.I(startX), Y: fixed.I(startY)}
 		d := &font.Drawer{
 			Dst:  img,
-			Src:  image.NewUniform(col),
-			Face: basicfont.Face7x13,
+			Src:  image.NewUniform(textColor),
+			Face: face,
 			Dot:  point,
 		}
+
 		d.DrawString(line)
-		y += 20 // move down by 20 pixels per line
+		startY += lineHeight
 	}
 
 	var buf bytes.Buffer

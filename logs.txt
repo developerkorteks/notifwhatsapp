@@ -1,9 +1,10 @@
-2026/03/06 08:47:55 Initializing System...
-2026/03/06 08:47:55 Database initialized and migrated successfully.
-2026/03/06 08:47:55 Initializing WhatsApp Client...
-2026/03/06 08:47:55 Starting Background Workers...
-2026/03/06 08:47:55 Cron job started. Will check every 2 minutes.
-2026/03/06 08:47:55 Starting Web Dashboard...
+2026/03/06 09:15:00 Initializing System...
+2026/03/06 09:15:00 Database initialized and migrated successfully.
+2026/03/06 09:15:00 Initializing WhatsApp Client...
+2026/03/06 09:15:01 WA Connected automatically.
+2026/03/06 09:15:01 Starting Background Workers...
+2026/03/06 09:15:01 Cron job started. Will check every 2 minutes.
+2026/03/06 09:15:01 Starting Web Dashboard...
 [GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
 
 [GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
@@ -23,15 +24,231 @@
 [GIN-debug] GET    /static/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (3 handlers)
 [GIN-debug] HEAD   /static/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (3 handlers)
 [GIN-debug] GET    /                         --> juraganxl-notif/internal/api.RegisterHandlers.func1 (3 handlers)
-2026/03/06 08:47:55 Starting Server on :57203
+2026/03/06 09:15:01 Starting Server on :8080
 [GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
 Please check https://github.com/gin-gonic/gin/blob/master/docs/doc.md#dont-trust-all-proxies for details.
-[GIN-debug] Listening and serving HTTP on :57203
-2026/03/06 08:48:00 Cron: Checking JuraganXL Stock...
-2026/03/06 08:48:00 Stock change detected! Formatting message...
-2026/03/06 08:48:00 Failed to broadcast stock message: WhatsApp client is not connected
-[GIN] 2026/03/06 - 08:49:53 | 200 |   1.64ms |             ::1 | GET      "/"
-[GIN] 2026/03/06 - 08:49:53 | 404 |    661ns |             ::1 | GET      "/favicon.ico"
-2026/03/06 08:50:00 Cron: Checking JuraganXL Stock...
-2026/03/06 08:50:00 Stock change detected! Formatting message...
-2026/03/06 08:50:00 Failed to broadcast stock message: WhatsApp client is not connected
+[GIN-debug] Listening and serving HTTP on :8080
+2026/03/06 09:15:02 [EVENT] Incoming message from 120363421286062360@g.us: ''
+2026/03/06 09:15:02 [EVENT] Incoming message from 120363421286062360@g.us: 'limit nya brp itu kk 1 hari'
+2026/03/06 09:15:02 [EVENT] Incoming message from 120363419913453834@g.us: ''
+2026/03/06 09:15:02 [EVENT] Incoming message from 120363419913453834@g.us: '*ready*
+
+https://juraganxl.my.id/
+
+xda13= 47.000
+xda19= 50.000
+xda25= 54.000
+xda31= 60.000
+xda38= 65.000
+xda50= 75.000
+xda63= 85.000
+xda76= 94.000
+xda88= 102.000
+
+*list + tf*
+
+*format*
+contoh yang benar
+083119690513
+xda13 47k
+
+*wajib cantumin varian + harga*'
+2026/03/06 09:15:02 [EVENT] Incoming message from 120363419913453834@g.us: 'cek stok sebelum order'
+2026/03/06 09:15:02 [EVENT] Incoming message from 190439403585755@lid: 'duh byu ngga ada udp kah? xl ku hilang sinyal bang apa gegara udp ?'
+2026/03/06 09:15:02 [EVENT] Incoming message from 120363342734771267@g.us: ''
+2026/03/06 09:15:02 [EVENT] Incoming message from 120363342734771267@g.us: ''
+2026/03/06 09:15:02 [EVENT] Incoming message from 120363195829670821@g.us: ''
+2026/03/06 09:15:02 [EVENT] Incoming message from 120363195829670821@g.us: ''
+2026/03/06 09:15:02 [EVENT] Incoming message from 120363342734771267@g.us: ''
+2026/03/06 09:15:02 [EVENT] Incoming message from 120363195829670821@g.us: ''
+2026/03/06 09:15:02 [EVENT] Incoming message from 120363342734771267@g.us: ''
+2026/03/06 09:15:02 [EVENT] Incoming message from 120363195829670821@g.us: ''
+2026/03/06 09:15:02 [EVENT] Incoming message from 120363342734771267@g.us: ''
+2026/03/06 09:15:03 [EVENT] Incoming message from 120363195829670821@g.us: ''
+2026/03/06 09:15:03 [EVENT] Incoming message from 120363342734771267@g.us: ''
+2026/03/06 09:15:03 [EVENT] Incoming message from 120363195829670821@g.us: ''
+2026/03/06 09:15:03 [EVENT] Incoming message from 120363342734771267@g.us: ''
+2026/03/06 09:15:03 [EVENT] Incoming message from 120363195829670821@g.us: ''
+[GIN] 2026/03/06 - 09:15:03 | 200 | 49.433µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:15:03 [EVENT] Incoming message from 120363342734771267@g.us: ''
+2026/03/06 09:15:03 [EVENT] Incoming message from 120363195829670821@g.us: ''
+2026/03/06 09:15:03 [EVENT] Incoming message from 120363342734771267@g.us: ''
+2026/03/06 09:15:03 [EVENT] Incoming message from 120363195829670821@g.us: ''
+2026/03/06 09:15:03 [EVENT] Incoming message from 120363342734771267@g.us: ''
+2026/03/06 09:15:03 [EVENT] Incoming message from 120363195829670821@g.us: ''
+2026/03/06 09:15:03 [EVENT] Incoming message from 120363195829670821@g.us: 'sell
+rogue lv 54
+data lengkap tag se email+akun steam nya
+spek akun
+cosmetic bag slot 3x
+bank slot max 5x
+mount 7x : blight,sheep dll cek ss
+hat 3x cek ss
+dye color 4x : blue,white,black dll
+hair sasuke
+skill siap farming
+harga 800k nego pm'
+2026/03/06 09:15:03 [EVENT] Incoming message from 120363342734771267@g.us: 'sell
+rogue lv 54
+data lengkap tag se email+akun steam nya
+spek akun
+cosmetic bag slot 3x
+bank slot max 5x
+mount 7x : blight,sheep dll cek ss
+hat 3x cek ss
+dye color 4x : blue,white,black dll
+hair sasuke
+skill siap farming
+harga 800k nego pm'
+2026/03/06 09:15:03 [EVENT] Incoming message from 6287828628670@s.whatsapp.net: 'harusnya ga masalah sih kak , coba pake kartunya di hp lain , kalo emang masih hilang berarti bts'
+2026/03/06 09:15:04 [EVENT] Incoming message from 120363425943819239@g.us: '✅ *produk akrab v1 sudah restock!*
+
+✨ akrab 13-30gb (promo) — sisa 40
+
+🕒 06/03/2026 09:12:05'
+2026/03/06 09:15:04 [EVENT] Incoming message from 120363425943819239@g.us: '✅ *produk akrab v1 sudah restock!*
+
+✨ akrab 31-48gb (promo) — sisa 78
+✨ akrab 50-67gb (promo) — sisa 39
+✨ akrab 63-80gb (promo) — sisa 40
+
+🕒 06/03/2026 09:13:06'
+2026/03/06 09:15:04 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda19) • 47.000 • 19–36gb : 78 tersedia
+▫️ (xda25) • 52.000 • 25–42gb : 102 tersedia
+▫️ (xda88) • 99.000 • 88–105gb : 50 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:14:20*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+[GIN] 2026/03/06 - 09:15:06 | 200 | 13.021µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:15:09 | 200 | 12.445µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:15:12 | 200 | 14.351µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:15:15 | 200 | 13.174µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:15:18 | 200 | 12.989µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:15:21 | 200 | 15.399µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:15:22 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda13) • 43.000 • 13–30gb : 78 tersedia
+▫️ (xda31) • 57.000 • 31–48gb : 72 tersedia
+▫️ (xda88) • 99.000 • 88–105gb : 85 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:15:20*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+[GIN] 2026/03/06 - 09:15:24 | 200 | 14.194µs |             ::1 | GET      "/api/wa/status"
+09:15:24.693[33m [Client WARN] Unavailable message ACD0015163B22FA646C7D02E7771A224 from 145694451073141@lid in 120363385601246656@g.us (type: "view_once")[0m
+2026/03/06 09:15:26 [EVENT] Incoming message from 120363385601246656@g.us: ''
+09:15:26.455[33m [Client WARN] Unavailable message ACD0015163B22FA646C7D02E7771A224 from 145694451073141@lid in 120363385601246656@g.us (type: "view_once")[0m
+[GIN] 2026/03/06 - 09:15:27 | 200 | 13.784µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:15:29 | 304 | 44.964µs |             ::1 | GET      "/"
+[GIN] 2026/03/06 - 09:15:29 | 200 | 18.846µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:15:29 | 200 | 405.728µs |             ::1 | GET      "/api/wa/channels"
+[GIN] 2026/03/06 - 09:15:29 | 200 | 889.968µs |             ::1 | GET      "/api/wa/groups"
+[GIN] 2026/03/06 - 09:15:32 | 200 | 14.188µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:15:35 | 200 | 15.566µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:15:38 | 200 | 18.777µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:15:41 | 200 | 39.371µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:15:44 | 200 | 13.586µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:15:47 | 200 | 13.257µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:15:50 | 200 | 11.484µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:15:53 | 200 | 11.533µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:15:53 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda19) • 47.000 • 19–36gb : 75 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:15:50*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+[GIN] 2026/03/06 - 09:15:56 | 200 | 13.133µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:15:59 | 200 | 13.582µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:16:00 Cron: Checking JuraganXL Stock...
+2026/03/06 09:16:00 Stock change detected! Formatting message...
+[GIN] 2026/03/06 - 09:16:02 | 200 | 13.375µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:16:03 Stock broadcast sent successfully.
+[GIN] 2026/03/06 - 09:16:04 | 200 |    2.1ms |             ::1 | GET      "/"
+[GIN] 2026/03/06 - 09:16:04 | 200 | 24.493µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:16:04 | 200 | 376.423µs |             ::1 | GET      "/api/wa/channels"
+[GIN] 2026/03/06 - 09:16:04 | 200 |   2.06ms |             ::1 | GET      "/api/wa/groups"
+[GIN] 2026/03/06 - 09:16:04 | 404 |    694ns |             ::1 | GET      "/favicon.ico"
+[GIN] 2026/03/06 - 09:16:07 | 200 | 13.679µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:16:10 | 200 | 13.348µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:16:13 [EVENT] Incoming message from 120363364975460037@g.us: ''
+2026/03/06 09:16:13 [EVENT] Incoming message from 120363364975460037@g.us: 'aku pling itu yg ku shre di chnel ini dan chnel ke dua mas'
+[GIN] 2026/03/06 - 09:16:13 | 200 | 13.436µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:16:16 | 200 | 16.902µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:16:19 | 200 | 12.936µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:16:21 | 200 |    2.21s |             ::1 | POST     "/api/broadcast/custom"
+[GIN] 2026/03/06 - 09:16:23 | 200 | 17.209µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:16:23 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda25) • 52.000 • 25–42gb : 97 tersedia
+▫️ (xda31) • 57.000 • 31–48gb : 71 tersedia
+▫️ (xda50) • 72.000 • 50–67gb : 29 tersedia
+▫️ (xda63) • 82.000 • 63–80gb : 36 tersedia
+▫️ (xda88) • 99.000 • 88–105gb : 84 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:16:21*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+[GIN] 2026/03/06 - 09:16:25 | 200 | 14.381µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:16:28 | 200 | 17.936µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:16:31 | 200 | 16.914µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:16:34 | 200 | 13.695µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:16:37 | 200 | 12.812µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:16:39 [EVENT] Incoming message from 120363423766700053@g.us: ''
+2026/03/06 09:16:39 [EVENT] Incoming message from 120363423766700053@g.us: '/stok'
+2026/03/06 09:16:39 [EVENT] Handling command '/stok'
+[GIN] 2026/03/06 - 09:16:40 | 200 |  15.67µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:16:43 | 200 | 13.256µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:16:46 | 200 | 11.265µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:16:49 | 200 | 11.693µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:16:52 | 200 | 19.968µs |             ::1 | GET      "/api/wa/status"
+2026/03/06 09:16:53 [EVENT] Incoming message from 120363401469842030@newsletter: '📈 *ready stok terbaru – akrab (xl/axis)*
+semua paket ready & bisa langsung order!
+
+📦 *daftar paket tersedia + harga :*
+
+*akrab fresh xda series*
+▫️ (xda38) • 62.000 • 38–55gb : 81 tersedia
+▫️ (xda76) • 89.000 • 76–93gb : 49 tersedia
+
+🛒 *order via:*
+> website: https://ics-store.my.id/
+> bot whatsapp: https://wa.me/6285951475620
+
+🕒 *update: 06/03/2026, 09:16:51*
+⚡ *stok terbatas - buruan order sebelum kehabisan!*'
+[GIN] 2026/03/06 - 09:16:55 | 200 | 15.449µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:16:58 | 200 | 10.679µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:17:01 | 200 | 10.529µs |             ::1 | GET      "/api/wa/status"
+[GIN] 2026/03/06 - 09:17:04 | 200 |  13.56µs |             ::1 | GET      "/api/wa/status"

@@ -34,12 +34,31 @@ func BroadcastCustomMessage(msg string, msgType string, pollOptions []string, fi
 
 	var waMsg *waE2E.Message
 
-	// Fallback Text-to-Image for View Once that lacks a file attachment
-	if msgType == "view_once" && len(fileBytes) == 0 {
-		imgBytes, err := utils.CreateTextImage(msg)
-		if err == nil {
-			fileBytes = imgBytes
-			mime = "image/png"
+	// Fallback Text-to-Image for View Once/SWGC that lacks a file attachment
+	if len(fileBytes) == 0 && msg != "" {
+		isFlaming := strings.HasPrefix(msg, "flaming") && strings.Contains(msg, "|")
+
+		if msgType == "view_once" || isFlaming {
+			var imgBytes []byte
+			var err error
+
+			if isFlaming {
+				parts := strings.SplitN(msg, "|", 2)
+				style := strings.TrimPrefix(parts[0], "flaming")
+				text := parts[1]
+				imgBytes, err = utils.CreateFlamingImage(text, style)
+			} else if msgType == "view_once" {
+				imgBytes, err = utils.CreateTextImage(msg)
+			}
+
+			if err == nil && len(imgBytes) > 0 {
+				fileBytes = imgBytes
+				mime = "image/png"
+			} else if msgType == "view_once" {
+				// if flaming fails and it's view_once, fallback to text image
+				fileBytes, _ = utils.CreateTextImage(msg)
+				mime = "image/png"
+			}
 		}
 	}
 
