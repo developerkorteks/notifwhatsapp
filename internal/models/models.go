@@ -12,6 +12,7 @@ type GroupTarget struct {
 	GroupName      string
 	IsStockActive  bool
 	IsCustomActive bool
+	IsAntiSwgcActive bool
 }
 
 type ChannelTarget struct {

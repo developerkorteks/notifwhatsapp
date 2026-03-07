@@ -102,9 +102,10 @@
                 <input type="text" id="searchGroup" onkeyup="filterGroups()" placeholder="Search groups..." class="w-full border border-gray-200 rounded p-2 text-sm mb-3 focus:outline-none focus:ring-1 focus:ring-green-500">
                 <!-- Table headers -->
                 <div class="grid grid-cols-12 gap-2 text-xs font-semibold text-gray-500 mb-2 px-2">
-                    <div class="col-span-8">Group Name</div>
+                    <div class="col-span-6">Group Name</div>
                     <div class="col-span-2 text-center">Auto-Stock</div>
                     <div class="col-span-2 text-center">Custom</div>
+                    <div class="col-span-2 text-center text-red-500" title="Delete WhatsApp group/wa.me links sent by users">Anti-SWGC</div>
                 </div>
                 <div id="groupList" class="flex-1 overflow-y-auto space-y-2 custom-scrollbar pr-2">
                     <!-- Dynamic -->
@@ -194,12 +195,15 @@
             const list = document.getElementById('groupList');
             list.innerHTML = data.map(g => `
                 <div class="grid grid-cols-12 gap-2 items-center p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition border border-gray-200">
-                    <span class="col-span-8 text-sm truncate" title="${g.GroupName}">${g.GroupName}</span>
+                    <span class="col-span-6 text-sm truncate" title="${g.GroupName}">${g.GroupName}</span>
                     <div class="col-span-2 text-center">
                         <input type="checkbox" id="stock_${g.JID}" onchange="updateGroupState('${g.JID}')" ${g.IsStockActive ? 'checked' : ''} class="w-4 h-4 text-green-600 rounded">
                     </div>
                     <div class="col-span-2 text-center">
                         <input type="checkbox" id="custom_${g.JID}" onchange="updateGroupState('${g.JID}')" ${g.IsCustomActive ? 'checked' : ''} class="w-4 h-4 text-green-600 rounded">
+                    </div>
+                    <div class="col-span-2 text-center">
+                        <input type="checkbox" id="antiswgc_${g.JID}" onchange="updateGroupState('${g.JID}')" ${g.IsAntiSwgcActive ? 'checked' : ''} class="w-4 h-4 text-red-600 rounded">
                     </div>
                 </div>
             `).join('');
@@ -208,9 +212,15 @@
         async function updateGroupState(jid) {
             const stockChecked = document.getElementById(`stock_${jid}`).checked;
             const customChecked = document.getElementById(`custom_${jid}`).checked;
+            const antiSwgcChecked = document.getElementById(`antiswgc_${jid}`).checked;
             await fetch(`${API}/wa/groups/settings`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({jid, is_stock_active: stockChecked, is_custom_active: customChecked})
+                body: JSON.stringify({
+					jid, 
+					is_stock_active: stockChecked, 
+					is_custom_active: customChecked,
+					is_anti_swgc_active: antiSwgcChecked
+				})
             });
         }
 

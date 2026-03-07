@@ -79,9 +79,10 @@ func syncGroups(c *gin.Context) {
 }
 
 type GroupSettingReq struct {
-	JID            string `json:"jid"`
-	IsStockActive  bool   `json:"is_stock_active"`
-	IsCustomActive bool   `json:"is_custom_active"`
+	JID              string `json:"jid"`
+	IsStockActive    bool   `json:"is_stock_active"`
+	IsCustomActive   bool   `json:"is_custom_active"`
+	IsAntiSwgcActive bool   `json:"is_anti_swgc_active"`
 }
 
 func updateGroupSettings(c *gin.Context) {
@@ -90,10 +91,11 @@ func updateGroupSettings(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := whatsapp.UpdateGroupSettings(req.JID, req.IsStockActive, req.IsCustomActive); err != nil {
+	if err := whatsapp.UpdateGroupSettings(req.JID, req.IsStockActive, req.IsCustomActive, req.IsAntiSwgcActive); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{"message": "Settings updated"})
 }
 

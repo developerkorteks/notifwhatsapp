@@ -25,10 +25,11 @@ func SyncGroups() error {
 		res := db.DB.First(&existing, "jid = ?", g.JID.String())
 		if res.Error != nil { // Not found, create new
 			newGroup := models.GroupTarget{
-				JID:            g.JID.String(),
-				GroupName:      g.Name,
-				IsStockActive:  false,
-				IsCustomActive: false,
+				JID:              g.JID.String(),
+				GroupName:        g.Name,
+				IsStockActive:    false,
+				IsCustomActive:   false,
+				IsAntiSwgcActive: false,
 			}
 			db.DB.Create(&newGroup)
 		} else { // Update name in case it changed
@@ -82,13 +83,14 @@ func GetDBChannels() []models.ChannelTarget {
 	return channels
 }
 
-func UpdateGroupSettings(jid string, isStock, isCustom bool) error {
+func UpdateGroupSettings(jid string, isStock, isCustom, isAntiSwgc bool) error {
 	var g models.GroupTarget
 	if err := db.DB.First(&g, "jid = ?", jid).Error; err != nil {
 		return err
 	}
 	g.IsStockActive = isStock
 	g.IsCustomActive = isCustom
+	g.IsAntiSwgcActive = isAntiSwgc
 	return db.DB.Save(&g).Error
 }
 

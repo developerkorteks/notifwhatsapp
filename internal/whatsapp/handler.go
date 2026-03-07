@@ -2,6 +2,8 @@ package whatsapp
 
 import (
 	"context"
+	"juraganxl-notif/internal/db"
+	"juraganxl-notif/internal/models"
 	"log"
 	"strings"
 	"time"
@@ -30,6 +32,49 @@ func eventHandler(evt interface{}) {
 			log.Printf("[EVENT] Handling command '%s'", msgLower)
 			go handleStockCommand(v.Info.Chat, v.Info.ID, v.Info.Sender)
 		}
+
+		// Anti-SWGC Check (Delete GroupStatusMessageV2 / SWGC)
+		isSwgc := v.Message.GetGroupStatusMessageV2() != nil
+
+		// DEBUG logging for group messages
+		if v.Info.IsGroup {
+			log.Printf("[DEBUG-GROUP-MSG] Sender: %s, FromMe: %t, IsSwgc: %t, Type: %T",
+				v.Info.Sender.String(), v.Info.IsFromMe, isSwgc, v.Message)
+			if v.Message.GetExtendedTextMessage() != nil {
+				log.Printf("[DEBUG-EXT] ContextInfo: %+v", v.Message.GetExtendedTextMessage().GetContextInfo())
+			}
+			if v.Message.GetImageMessage() != nil {
+				log.Printf("[DEBUG-IMG] ContextInfo: %+v", v.Message.GetImageMessage().GetContextInfo())
+			}
+			if v.Message.GetVideoMessage() != nil {
+				log.Printf("[DEBUG-VID] ContextInfo: %+v", v.Message.GetVideoMessage().GetContextInfo())
+			}
+		}
+
+		if v.Info.IsGroup && isSwgc {
+			// Do not delete messages from ourselves (our own bot's SWGC)
+			if !v.Info.IsFromMe {
+				go handleAntiSwgc(v.Info.Chat, v.Info.Sender, v.Info.ID)
+			}
+		}
+	}
+}
+
+func handleAntiSwgc(chatJID types.JID, senderJID types.JID, msgID string) {
+	if WAClient == nil {
+		return
+	}
+
+	var g models.GroupTarget
+	if err := db.DB.First(&g, "jid = ?", chatJID.String()).Error; err != nil {
+		return // Group not found or not configured
+	}
+
+	if g.IsAntiSwgcActive {
+		log.Printf("[ANTI-SWGC] Detected SWGC (Group Status Message) from %s in group %s. Revoking message %s", senderJID.String(), chatJID.String(), msgID)
+
+		// Revoke the message for everyone
+		WAClient.SendMessage(context.Background(), chatJID, WAClient.BuildRevoke(chatJID, senderJID, msgID))
 	}
 }
 
