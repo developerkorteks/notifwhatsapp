@@ -13,13 +13,23 @@
 <body class="bg-gray-50 text-gray-800 font-sans p-6 min-h-screen">
     <div class="max-w-6xl mx-auto space-y-6">
         <!-- Header -->
-        <header class="bg-white rounded-xl shadow p-6 flex justify-between items-center border border-gray-100">
+        <header class="bg-white rounded-xl shadow p-6 flex flex-col md:flex-row justify-between items-center border border-gray-100 gap-4">
             <div>
                 <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-500 to-emerald-600">JuraganXL Notification Hub</h1>
                 <p class="text-sm text-gray-500">Manage WhatsApp Stock & Custom Broadcasts</p>
             </div>
-            <div id="statusBadge" class="px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 bg-gray-100 text-gray-600">
-                <span class="w-2 h-2 rounded-full bg-gray-400"></span> Disconnected
+            <div class="flex items-center gap-4 flex-wrap justify-end">
+                <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200">
+                    <label class="text-sm font-medium text-gray-600">Account:</label>
+                    <select id="accountSelector" onchange="switchAccount()" class="border border-gray-300 rounded p-1.5 text-sm focus:ring-green-500 focus:outline-none min-w-[150px] bg-white">
+                        <option value="">Loading...</option>
+                    </select>
+                    <button onclick="createNewAccount()" class="text-xs bg-green-100 text-green-700 px-3 py-1.5 rounded hover:bg-green-200 font-bold" title="Add New Account">+ Add</button>
+                    <button onclick="deleteCurrentAccount()" class="text-xs bg-red-100 text-red-700 px-3 py-1.5 rounded hover:bg-red-200 font-bold" title="Delete Selected Account">Delete</button>
+                </div>
+                <div id="statusBadge" class="px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 bg-gray-100 text-gray-600 min-w-[130px] justify-center">
+                    <span class="w-2 h-2 rounded-full bg-gray-400"></span> Disconnected
+                </div>
             </div>
         </header>
 
@@ -37,7 +47,7 @@
 
                 <div class="flex gap-2">
                     <button onclick="generateQR()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full transition font-medium text-sm">Generate QR</button>
-                    <button onclick="logout()" class="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 px-4 py-2 rounded w-full transition font-medium text-sm">Logout / Clean DB</button>
+                    <button onclick="logout()" class="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 px-4 py-2 rounded w-full transition font-medium text-sm">Logout App</button>
                 </div>
             </div>
 
@@ -118,18 +128,87 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         const API = window.location.origin + '/api';
+        let currentAccountID = null;
         
-        async function fetchStatus() {
+        async function loadAccounts() {
             try {
-                const res = await fetch(`${API}/wa/status`);
+                const res = await fetch(`${API}/accounts`);
+                const data = await res.json() || [];
+                const select = document.getElementById('accountSelector');
+                select.innerHTML = '';
+                
+                if (data.length === 0) {
+                    select.innerHTML = '<option value="">No Accounts Found</option>';
+                    currentAccountID = null;
+                } else {
+                    data.forEach(acc => {
+                        select.innerHTML += `<option value="${acc.ID}">${acc.SessionName}</option>`;
+                    });
+                    
+                    // Maintain selection if exists, else first
+                    if (!currentAccountID || !data.find(a => a.ID == currentAccountID)) {
+                        currentAccountID = data[0].ID;
+                    }
+                    select.value = currentAccountID;
+                }
+                switchAccount(); // Trigger UI refresh for selected account
+            } catch (e) {
+                console.error("Failed to load accounts:", e);
+            }
+        }
+
+        function switchAccount() {
+            const val = document.getElementById('accountSelector').value;
+            if (val) {
+                currentAccountID = val;
+                fetchStatus();
+                loadChannels();
+                loadGroups();
+            } else {
+                currentAccountID = null;
+                document.getElementById('channelList').innerHTML = '';
+                document.getElementById('groupList').innerHTML = '';
+                const badge = document.getElementById('statusBadge');
+                badge.className = 'px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 bg-gray-100 text-gray-600 min-w-[130px] justify-center';
+                badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-gray-400"></span> Disconnected';
+                document.getElementById('qrContainer').classList.add('hidden');
+            }
+        }
+
+        async function createNewAccount() {
+            const name = prompt("Enter a name for the new WhatsApp Account (e.g., 'Bot Support', 'Main'):");
+            if (!name || name.trim() === "") return;
+            try {
+                await fetch(`${API}/accounts`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({session_name: name.trim()})
+                });
+                loadAccounts();
+            } catch (e) {
+                alert("Failed to create account. Name must be unique.");
+            }
+        }
+
+        async function deleteCurrentAccount() {
+            if (!currentAccountID) return alert("No active account to delete.");
+            if (confirm("Are you sure you want to permanently delete this account and all its active groups/channels?")) {
+                await fetch(`${API}/accounts/${currentAccountID}`, { method: 'DELETE' });
+                loadAccounts();
+            }
+        }
+
+        async function fetchStatus() {
+            if (!currentAccountID) return;
+            try {
+                const res = await fetch(`${API}/wa/status?account_id=${currentAccountID}`);
                 const data = await res.json();
                 const badge = document.getElementById('statusBadge');
                 if (data.status === 'connected') {
-                    badge.className = 'px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 bg-green-50 text-green-700 border border-green-200';
+                    badge.className = 'px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 bg-green-50 text-green-700 border border-green-200 min-w-[130px] justify-center';
                     badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Connected';
                     document.getElementById('qrContainer').classList.add('hidden');
                 } else {
-                    badge.className = 'px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 bg-gray-100 text-gray-600';
+                    badge.className = 'px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 bg-gray-100 text-gray-600 min-w-[130px] justify-center';
                     badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-gray-400"></span> Disconnected';
                 }
             } catch (e) {
@@ -138,9 +217,10 @@
         }
 
         async function generateQR() {
+            if (!currentAccountID) return alert("Select or add an account first!");
             document.getElementById('qrContainer').classList.remove('hidden');
             document.getElementById('qrcode').innerHTML = '<span class="text-xs text-gray-500">Generating...</span>';
-            const res = await fetch(`${API}/wa/qr`);
+            const res = await fetch(`${API}/wa/qr?account_id=${currentAccountID}`);
             const data = await res.json();
             if (data.qr_code) {
                 document.getElementById('qrcode').innerHTML = '';
@@ -153,19 +233,22 @@
         }
 
         async function logout() {
-            if(confirm("Logout and erase session database?")) {
-                await fetch(`${API}/wa/logout`, { method: 'POST' });
+            if (!currentAccountID) return;
+            if(confirm("Logout and erase session database for this account?")) {
+                await fetch(`${API}/wa/logout?account_id=${currentAccountID}`, { method: 'POST' });
                 fetchStatus();
             }
         }
 
         async function syncChannels() {
-            await fetch(`${API}/wa/channels/sync`, { method: 'POST' });
+            if (!currentAccountID) return alert("Select an account first");
+            await fetch(`${API}/wa/channels/sync?account_id=${currentAccountID}`, { method: 'POST' });
             loadChannels();
         }
 
         async function loadChannels() {
-            const res = await fetch(`${API}/wa/channels`);
+            if (!currentAccountID) return;
+            const res = await fetch(`${API}/wa/channels?account_id=${currentAccountID}`);
             const data = await res.json() || [];
             const list = document.getElementById('channelList');
             list.innerHTML = data.map(ch => `
@@ -177,20 +260,23 @@
         }
 
         async function setActiveChannel(jid) {
+            if (!currentAccountID) return;
             await fetch(`${API}/wa/channels/active`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({jid})
+                body: JSON.stringify({account_id: parseInt(currentAccountID), jid})
             });
             loadChannels();
         }
 
         async function syncGroups() {
-            await fetch(`${API}/wa/groups/sync`, { method: 'POST' });
+            if (!currentAccountID) return alert("Select an account first");
+            await fetch(`${API}/wa/groups/sync?account_id=${currentAccountID}`, { method: 'POST' });
             loadGroups();
         }
 
         async function loadGroups() {
-            const res = await fetch(`${API}/wa/groups`);
+            if (!currentAccountID) return;
+            const res = await fetch(`${API}/wa/groups?account_id=${currentAccountID}`);
             const data = await res.json() || [];
             const list = document.getElementById('groupList');
             list.innerHTML = data.map(g => `
@@ -210,12 +296,14 @@
         }
 
         async function updateGroupState(jid) {
+            if (!currentAccountID) return;
             const stockChecked = document.getElementById(`stock_${jid}`).checked;
             const customChecked = document.getElementById(`custom_${jid}`).checked;
             const antiSwgcChecked = document.getElementById(`antiswgc_${jid}`).checked;
             await fetch(`${API}/wa/groups/settings`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
+                    account_id: parseInt(currentAccountID),
 					jid, 
 					is_stock_active: stockChecked, 
 					is_custom_active: customChecked,
@@ -225,6 +313,8 @@
         }
 
         async function sendBroadcast() {
+            if (!currentAccountID) return alert("Please select a WhatsApp account first");
+            
             const btn = document.querySelector('button[onclick="sendBroadcast()"]');
             const msg = document.getElementById('broadcastMsg').value;
             const type = document.querySelector('input[name="msgType"]:checked').value;
@@ -239,14 +329,13 @@
                 if (options.length < 2) return alert("Poll must have at least 2 valid options.");
             }
 
-
-
             if(!msg && (!fileInput.files || fileInput.files.length === 0)) return alert("Message or Media cannot be entirely empty");
-            if(!confirm(`Send ${type} broadcast to ALL configured custom groups?`)) return;
+            if(!confirm(`Send ${type} broadcast from this account to ALL its configured custom groups?`)) return;
 
             btn.innerText = "Sending..."; btn.disabled = true;
 
             const formData = new FormData();
+            formData.append('account_id', currentAccountID);
             formData.append('message', msg);
             formData.append('msg_type', type);
             if (type === 'poll') {
@@ -309,9 +398,7 @@
         }
 
         // Init
-        fetchStatus();
-        loadChannels();
-        loadGroups();
+        loadAccounts(); // will automatically trigger the others
         setInterval(fetchStatus, 3000); // refresh status
     </script>
 </body>

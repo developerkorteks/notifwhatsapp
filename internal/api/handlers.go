@@ -3,8 +3,11 @@ package api
 import (
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 
+	"juraganxl-notif/internal/db"
+	"juraganxl-notif/internal/models"
 	"juraganxl-notif/internal/whatsapp"
 
 	"github.com/gin-gonic/gin"
@@ -13,6 +16,10 @@ import (
 func RegisterHandlers(r *gin.Engine) {
 	api := r.Group("/api")
 	{
+		api.GET("/accounts", getAccounts)
+		api.POST("/accounts", createAccount)
+		api.DELETE("/accounts/:id", deleteAccount)
+
 		api.GET("/wa/status", getStatus)
 		api.GET("/wa/qr", generateQR)
 		api.POST("/wa/logout", logoutWA)
@@ -35,8 +42,49 @@ func RegisterHandlers(r *gin.Engine) {
 	})
 }
 
+func getAccounts(c *gin.Context) {
+	var accounts []models.Account
+	db.DB.Find(&accounts)
+	c.JSON(http.StatusOK, accounts)
+}
+
+type CreateAccountReq struct {
+	SessionName string `json:"session_name" binding:"required"`
+}
+
+func createAccount(c *gin.Context) {
+	var req CreateAccountReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	acc := models.Account{SessionName: req.SessionName}
+	if err := db.DB.Create(&acc).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, acc)
+}
+
+func deleteAccount(c *gin.Context) {
+	idStr := c.Param("id")
+	id, _ := strconv.ParseUint(idStr, 10, 32)
+	accountID := uint(id)
+
+	whatsapp.Logout(accountID)
+	db.DB.Delete(&models.Account{}, accountID)
+	db.DB.Where("account_id = ?", accountID).Delete(&models.GroupTarget{})
+	db.DB.Where("account_id = ?", accountID).Delete(&models.ChannelTarget{})
+
+	c.JSON(http.StatusOK, gin.H{"message": "Account deleted"})
+}
+
 func getStatus(c *gin.Context) {
-	if whatsapp.WAClient != nil && whatsapp.WAClient.IsConnected() && whatsapp.WAClient.IsLoggedIn() {
+	accountIDStr := c.Query("account_id")
+	accountID, _ := strconv.ParseUint(accountIDStr, 10, 32)
+
+	client, ok := whatsapp.Clients[uint(accountID)]
+	if ok && client != nil && client.IsConnected() && client.IsLoggedIn() {
 		c.JSON(http.StatusOK, gin.H{"status": "connected"})
 		return
 	}
@@ -44,7 +92,10 @@ func getStatus(c *gin.Context) {
 }
 
 func generateQR(c *gin.Context) {
-	qrChan, err := whatsapp.GenerateQR()
+	accountIDStr := c.Query("account_id")
+	accountID, _ := strconv.ParseUint(accountIDStr, 10, 32)
+
+	qrChan, err := whatsapp.GenerateQR(uint(accountID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -61,17 +112,32 @@ func generateQR(c *gin.Context) {
 }
 
 func logoutWA(c *gin.Context) {
-	whatsapp.Logout()
+	accountIDStr := c.Query("account_id") // or POST payload, but frontend uses query or we'll pass it in POST body
+	if accountIDStr == "" {
+		accountIDStr = c.PostForm("account_id")
+	}
+	accountID, _ := strconv.ParseUint(accountIDStr, 10, 32)
+
+	whatsapp.Logout(uint(accountID))
 	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
 }
 
 func getGroups(c *gin.Context) {
-	groups := whatsapp.GetDBGroups()
+	accountIDStr := c.Query("account_id")
+	accountID, _ := strconv.ParseUint(accountIDStr, 10, 32)
+
+	groups := whatsapp.GetDBGroups(uint(accountID))
 	c.JSON(http.StatusOK, groups)
 }
 
 func syncGroups(c *gin.Context) {
-	if err := whatsapp.SyncGroups(); err != nil {
+	accountIDStr := c.Query("account_id")
+	if accountIDStr == "" {
+		accountIDStr = c.PostForm("account_id")
+	}
+	accountID, _ := strconv.ParseUint(accountIDStr, 10, 32)
+
+	if err := whatsapp.SyncGroups(uint(accountID)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -79,6 +145,7 @@ func syncGroups(c *gin.Context) {
 }
 
 type GroupSettingReq struct {
+	AccountID        uint   `json:"account_id"`
 	JID              string `json:"jid"`
 	IsStockActive    bool   `json:"is_stock_active"`
 	IsCustomActive   bool   `json:"is_custom_active"`
@@ -91,7 +158,7 @@ func updateGroupSettings(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := whatsapp.UpdateGroupSettings(req.JID, req.IsStockActive, req.IsCustomActive, req.IsAntiSwgcActive); err != nil {
+	if err := whatsapp.UpdateGroupSettings(req.AccountID, req.JID, req.IsStockActive, req.IsCustomActive, req.IsAntiSwgcActive); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -100,12 +167,21 @@ func updateGroupSettings(c *gin.Context) {
 }
 
 func getChannels(c *gin.Context) {
-	channels := whatsapp.GetDBChannels()
+	accountIDStr := c.Query("account_id")
+	accountID, _ := strconv.ParseUint(accountIDStr, 10, 32)
+
+	channels := whatsapp.GetDBChannels(uint(accountID))
 	c.JSON(http.StatusOK, channels)
 }
 
 func syncChannels(c *gin.Context) {
-	if err := whatsapp.SyncChannels(); err != nil {
+	accountIDStr := c.Query("account_id")
+	if accountIDStr == "" {
+		accountIDStr = c.PostForm("account_id")
+	}
+	accountID, _ := strconv.ParseUint(accountIDStr, 10, 32)
+
+	if err := whatsapp.SyncChannels(uint(accountID)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -113,7 +189,8 @@ func syncChannels(c *gin.Context) {
 }
 
 type ActiveChannelReq struct {
-	JID string `json:"jid"`
+	AccountID uint   `json:"account_id"`
+	JID       string `json:"jid"`
 }
 
 func setActiveChannel(c *gin.Context) {
@@ -122,7 +199,7 @@ func setActiveChannel(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := whatsapp.SetActiveChannel(req.JID); err != nil {
+	if err := whatsapp.SetActiveChannel(req.AccountID, req.JID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -130,11 +207,13 @@ func setActiveChannel(c *gin.Context) {
 }
 
 func sendCustomBroadcast(c *gin.Context) {
-	// Parse Multipart Form
 	if err := c.Request.ParseMultipartForm(10 << 20); err != nil { // limit 10MB
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse form data"})
 		return
 	}
+
+	accountIDStr := c.PostForm("account_id")
+	accountID, _ := strconv.ParseUint(accountIDStr, 10, 32)
 
 	msg := c.PostForm("message")
 	msgType := c.PostForm("msg_type")
@@ -145,12 +224,10 @@ func sendCustomBroadcast(c *gin.Context) {
 		pollOptions = strings.Split(pollOptsRaw, "||")
 	}
 
-	if msg == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Message cannot be empty"})
-		return
+	if msg == "" && msgType != "standard" { // relaxed check
+		// message can be empty if it's media alone, unless we have constraints
 	}
 
-	// Read optional file
 	var fileBytes []byte
 	var mimeType string
 
@@ -161,7 +238,7 @@ func sendCustomBroadcast(c *gin.Context) {
 		mimeType = header.Header.Get("Content-Type")
 	}
 
-	err = whatsapp.BroadcastCustomMessage(msg, msgType, pollOptions, fileBytes, mimeType)
+	err = whatsapp.BroadcastCustomMessage(uint(accountID), msg, msgType, pollOptions, fileBytes, mimeType)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

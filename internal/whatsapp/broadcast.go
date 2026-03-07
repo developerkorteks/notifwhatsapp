@@ -17,13 +17,14 @@ import (
 )
 
 // BroadcastCustomMessage sends msg to Active Channel, then forwards it (sends to) all active Custom Groups
-func BroadcastCustomMessage(msg string, msgType string, pollOptions []string, fileBytes []byte, mime string) error {
-	if WAClient == nil || !WAClient.IsConnected() {
+func BroadcastCustomMessage(accountID uint, msg string, msgType string, pollOptions []string, fileBytes []byte, mime string) error {
+	client, ok := Clients[accountID]
+	if !ok || client == nil || !client.IsConnected() {
 		return errors.New("WhatsApp client is not connected")
 	}
 
 	var activeChannel models.ChannelTarget
-	if err := db.DB.First(&activeChannel, "is_active = ?", true).Error; err != nil {
+	if err := db.DB.First(&activeChannel, "account_id = ? AND is_active = ?", accountID, true).Error; err != nil {
 		return errors.New("No active channel selected")
 	}
 
@@ -69,7 +70,7 @@ func BroadcastCustomMessage(msg string, msgType string, pollOptions []string, fi
 
 		if strings.HasPrefix(mime, "image") {
 			mediaType = whatsmeow.MediaImage
-			resp, err := WAClient.Upload(context.Background(), fileBytes, mediaType)
+			resp, err := client.Upload(context.Background(), fileBytes, mediaType)
 			if err != nil {
 				return err
 			}
@@ -89,7 +90,7 @@ func BroadcastCustomMessage(msg string, msgType string, pollOptions []string, fi
 			}
 		} else if strings.HasPrefix(mime, "video") {
 			mediaType = whatsmeow.MediaVideo
-			resp, err := WAClient.Upload(context.Background(), fileBytes, mediaType)
+			resp, err := client.Upload(context.Background(), fileBytes, mediaType)
 			if err != nil {
 				return err
 			}
@@ -109,7 +110,7 @@ func BroadcastCustomMessage(msg string, msgType string, pollOptions []string, fi
 			}
 		} else if strings.HasPrefix(mime, "audio") {
 			mediaType = whatsmeow.MediaAudio
-			resp, err := WAClient.Upload(context.Background(), fileBytes, mediaType)
+			resp, err := client.Upload(context.Background(), fileBytes, mediaType)
 			if err != nil {
 				return err
 			}
@@ -131,7 +132,7 @@ func BroadcastCustomMessage(msg string, msgType string, pollOptions []string, fi
 
 	if waMsg == nil {
 		if msgType == "poll" && len(pollOptions) >= 2 {
-			waMsg = WAClient.BuildPollCreation(msg, pollOptions, 1)
+			waMsg = client.BuildPollCreation(msg, pollOptions, 1)
 		} else {
 			extended := &waE2E.ExtendedTextMessage{
 				Text: proto.String(msg),
@@ -171,7 +172,7 @@ func BroadcastCustomMessage(msg string, msgType string, pollOptions []string, fi
 
 	// 1. Send to Channel ONLY for standard text (Channels strip polls and view once)
 	if msgType == "standard" {
-		resp, err := WAClient.SendMessage(context.Background(), chJID, waMsg)
+		resp, err := client.SendMessage(context.Background(), chJID, waMsg)
 		if err != nil {
 			return err
 		}
@@ -193,73 +194,75 @@ func BroadcastCustomMessage(msg string, msgType string, pollOptions []string, fi
 
 	// 3. Fetch Target Custom Groups
 	var groups []models.GroupTarget
-	db.DB.Where("is_custom_active = ?", true).Find(&groups)
+	db.DB.Where("account_id = ? AND is_custom_active = ?", accountID, true).Find(&groups)
 
 	// 4. Loop and send to Groups
 	for _, g := range groups {
 		gJID, err := ParseJID(g.JID)
 		if err == nil {
-			WAClient.SendChatPresence(context.Background(), gJID, types.ChatPresenceComposing, types.ChatPresenceMediaText)
+			client.SendChatPresence(context.Background(), gJID, types.ChatPresenceComposing, types.ChatPresenceMediaText)
 			time.Sleep(1 * time.Second)
-			WAClient.SendChatPresence(context.Background(), gJID, types.ChatPresencePaused, types.ChatPresenceMediaText)
-			WAClient.SendMessage(context.Background(), gJID, waMsg)
+			client.SendChatPresence(context.Background(), gJID, types.ChatPresencePaused, types.ChatPresenceMediaText)
+			client.SendMessage(context.Background(), gJID, waMsg)
 		}
 	}
 
 	return nil
 }
 
-// BroadcastStockMessage sends the periodic diff to Active Channel and active Stock Groups
+// BroadcastStockMessage sends the periodic diff to all active Accounts -> Active Channel and active Stock Groups
 func BroadcastStockMessage(msg string) error {
-	if WAClient == nil || !WAClient.IsConnected() {
-		return errors.New("WhatsApp client is not connected")
-	}
+	for accountID, client := range Clients {
+		if client == nil || !client.IsConnected() {
+			continue
+		}
 
-	var activeChannel models.ChannelTarget
-	if err := db.DB.First(&activeChannel, "is_active = ?", true).Error; err != nil {
-		return errors.New("No active channel selected")
-	}
+		var activeChannel models.ChannelTarget
+		if err := db.DB.First(&activeChannel, "account_id = ? AND is_active = ?", accountID, true).Error; err != nil {
+			continue
+		}
 
-	chJID, err := ParseJID(activeChannel.JID)
-	if err != nil {
-		return err
-	}
+		chJID, err := ParseJID(activeChannel.JID)
+		if err != nil {
+			continue
+		}
 
-	// Create Text Message
-	waMsg := &waE2E.Message{
-		ExtendedTextMessage: &waE2E.ExtendedTextMessage{
-			Text: proto.String(msg),
-		},
-	}
+		// Create Text Message
+		waMsg := &waE2E.Message{
+			ExtendedTextMessage: &waE2E.ExtendedTextMessage{
+				Text: proto.String(msg),
+			},
+		}
 
-	// 1. Send to Channel
-	resp, err := WAClient.SendMessage(context.Background(), chJID, waMsg)
-	if err != nil {
-		return err
-	}
+		// 1. Send to Channel
+		resp, err := client.SendMessage(context.Background(), chJID, waMsg)
+		if err != nil {
+			continue
+		}
 
-	// 2. Attach ContextInfo to make it Forwarded from Channel
-	waMsg.ExtendedTextMessage.ContextInfo = &waE2E.ContextInfo{
-		IsForwarded: proto.Bool(true),
-		ForwardedNewsletterMessageInfo: &waE2E.ContextInfo_ForwardedNewsletterMessageInfo{
-			NewsletterJID:   proto.String(activeChannel.JID),
-			NewsletterName:  proto.String(activeChannel.ChannelName),
-			ServerMessageID: proto.Int32(int32(resp.ServerID)),
-		},
-	}
+		// 2. Attach ContextInfo to make it Forwarded from Channel
+		waMsg.ExtendedTextMessage.ContextInfo = &waE2E.ContextInfo{
+			IsForwarded: proto.Bool(true),
+			ForwardedNewsletterMessageInfo: &waE2E.ContextInfo_ForwardedNewsletterMessageInfo{
+				NewsletterJID:   proto.String(activeChannel.JID),
+				NewsletterName:  proto.String(activeChannel.ChannelName),
+				ServerMessageID: proto.Int32(int32(resp.ServerID)),
+			},
+		}
 
-	// 3. Fetch Target Stock Groups
-	var groups []models.GroupTarget
-	db.DB.Where("is_stock_active = ?", true).Find(&groups)
+		// 3. Fetch Target Stock Groups
+		var groups []models.GroupTarget
+		db.DB.Where("account_id = ? AND is_stock_active = ?", accountID, true).Find(&groups)
 
-	// 4. Loop and send to Groups
-	for _, g := range groups {
-		gJID, err := ParseJID(g.JID)
-		if err == nil {
-			WAClient.SendChatPresence(context.Background(), gJID, types.ChatPresenceComposing, types.ChatPresenceMediaText)
-			time.Sleep(1 * time.Second)
-			WAClient.SendChatPresence(context.Background(), gJID, types.ChatPresencePaused, types.ChatPresenceMediaText)
-			WAClient.SendMessage(context.Background(), gJID, waMsg)
+		// 4. Loop and send to Groups
+		for _, g := range groups {
+			gJID, err := ParseJID(g.JID)
+			if err == nil {
+				client.SendChatPresence(context.Background(), gJID, types.ChatPresenceComposing, types.ChatPresenceMediaText)
+				time.Sleep(1 * time.Second)
+				client.SendChatPresence(context.Background(), gJID, types.ChatPresencePaused, types.ChatPresenceMediaText)
+				client.SendMessage(context.Background(), gJID, waMsg)
+			}
 		}
 	}
 

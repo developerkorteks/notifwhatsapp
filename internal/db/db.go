@@ -19,6 +19,7 @@ func InitDB() {
 
 	// Auto Migrate the schema
 	err = DB.AutoMigrate(
+		&models.Account{},
 		&models.AppConfig{},
 		&models.GroupTarget{},
 		&models.ChannelTarget{},
@@ -28,4 +29,5 @@ func InitDB() {
 		log.Fatalf("failed to auto migrate database schema: %v", err)
 	}
 
-	log.Println("Database initialized and migrated successfully.")}
+	log.Println("Database initialized and migrated successfully.")
+}

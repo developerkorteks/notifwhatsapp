@@ -17,7 +17,7 @@ import (
 
 var OnRequestStock func() string
 
-func eventHandler(evt interface{}) {
+func eventHandler(accountID uint, evt interface{}) {
 	switch v := evt.(type) {
 	case *events.Message:
 
@@ -29,8 +29,8 @@ func eventHandler(evt interface{}) {
 		msgLower := strings.ToLower(strings.TrimSpace(msg))
 		log.Printf("[EVENT] Incoming message from %s: '%s'", v.Info.Chat.String(), msgLower)
 		if msgLower == "/stok" || msgLower == "/xda" || msgLower == "/xclp" {
-			log.Printf("[EVENT] Handling command '%s'", msgLower)
-			go handleStockCommand(v.Info.Chat, v.Info.ID, v.Info.Sender)
+			log.Printf("[Account %d] Handling command '%s'", accountID, msgLower)
+			go handleStockCommand(accountID, v.Info.Chat, v.Info.ID, v.Info.Sender)
 		}
 
 		// Anti-SWGC Check (Delete GroupStatusMessageV2 / SWGC)
@@ -54,32 +54,34 @@ func eventHandler(evt interface{}) {
 		if v.Info.IsGroup && isSwgc {
 			// Do not delete messages from ourselves (our own bot's SWGC)
 			if !v.Info.IsFromMe {
-				go handleAntiSwgc(v.Info.Chat, v.Info.Sender, v.Info.ID)
+				go handleAntiSwgc(accountID, v.Info.Chat, v.Info.Sender, v.Info.ID)
 			}
 		}
 	}
 }
 
-func handleAntiSwgc(chatJID types.JID, senderJID types.JID, msgID string) {
-	if WAClient == nil {
+func handleAntiSwgc(accountID uint, chatJID types.JID, senderJID types.JID, msgID string) {
+	client, ok := Clients[accountID]
+	if !ok || client == nil {
 		return
 	}
 
 	var g models.GroupTarget
-	if err := db.DB.First(&g, "jid = ?", chatJID.String()).Error; err != nil {
+	if err := db.DB.First(&g, "account_id = ? AND jid = ?", accountID, chatJID.String()).Error; err != nil {
 		return // Group not found or not configured
 	}
 
 	if g.IsAntiSwgcActive {
-		log.Printf("[ANTI-SWGC] Detected SWGC (Group Status Message) from %s in group %s. Revoking message %s", senderJID.String(), chatJID.String(), msgID)
+		log.Printf("[Account %d] Detected SWGC from %s in group %s. Revoking message %s", accountID, senderJID.String(), chatJID.String(), msgID)
 
 		// Revoke the message for everyone
-		WAClient.SendMessage(context.Background(), chatJID, WAClient.BuildRevoke(chatJID, senderJID, msgID))
+		client.SendMessage(context.Background(), chatJID, client.BuildRevoke(chatJID, senderJID, msgID))
 	}
 }
 
-func AutoReaction(jid types.JID, msgID types.MessageID, sender types.JID, emoji string) {
-	if WAClient == nil {
+func AutoReaction(accountID uint, jid types.JID, msgID types.MessageID, sender types.JID, emoji string) {
+	client, ok := Clients[accountID]
+	if !ok || client == nil {
 		return
 	}
 	reaction := &waE2E.ReactionMessage{
@@ -95,19 +97,24 @@ func AutoReaction(jid types.JID, msgID types.MessageID, sender types.JID, emoji 
 	msg := &waE2E.Message{
 		ReactionMessage: reaction,
 	}
-	WAClient.SendMessage(context.Background(), jid, msg)
+	client.SendMessage(context.Background(), jid, msg)
 }
 
-func handleStockCommand(chatJID types.JID, msgID types.MessageID, senderJID types.JID) {
+func handleStockCommand(accountID uint, chatJID types.JID, msgID types.MessageID, senderJID types.JID) {
+	client, ok := Clients[accountID]
+	if !ok || client == nil {
+		return
+	}
+
 	// 1. Send Reaction "⏳"
-	AutoReaction(chatJID, msgID, senderJID, "⏳")
+	AutoReaction(accountID, chatJID, msgID, senderJID, "⏳")
 
 	// 2. Typing indicator
-	WAClient.SendChatPresence(context.Background(), chatJID, types.ChatPresenceComposing, types.ChatPresenceMediaText)
+	client.SendChatPresence(context.Background(), chatJID, types.ChatPresenceComposing, types.ChatPresenceMediaText)
 	time.Sleep(2 * time.Second)
 
 	// 3. Unset typing and send message
-	WAClient.SendChatPresence(context.Background(), chatJID, types.ChatPresencePaused, types.ChatPresenceMediaText)
+	client.SendChatPresence(context.Background(), chatJID, types.ChatPresencePaused, types.ChatPresenceMediaText)
 
 	var reply string
 	if OnRequestStock != nil {
@@ -124,5 +131,5 @@ func handleStockCommand(chatJID types.JID, msgID types.MessageID, senderJID type
 		},
 	}
 
-	WAClient.SendMessage(context.Background(), chatJID, msg)
+	client.SendMessage(context.Background(), chatJID, msg)
 }
