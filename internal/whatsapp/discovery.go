@@ -5,6 +5,7 @@ import (
 	"errors"
 	"juraganxl-notif/internal/db"
 	"juraganxl-notif/internal/models"
+	"log"
 
 	"go.mau.fi/whatsmeow/types"
 )
@@ -108,4 +109,31 @@ func SetActiveChannel(accountID uint, jid string) error {
 // ParseJID helper function
 func ParseJID(jid string) (types.JID, error) {
 	return types.ParseJID(jid)
+}
+
+func InsertJoinedGroup(accountID uint, jid types.JID, groupName string) {
+	var existing models.GroupTarget
+	res := db.DB.First(&existing, "account_id = ? AND jid = ?", accountID, jid.String())
+	if res.Error != nil {
+		newGroup := models.GroupTarget{
+			AccountID:        accountID,
+			JID:              jid.String(),
+			GroupName:        groupName,
+			IsStockActive:    false,
+			IsCustomActive:   true,
+			IsAntiSwgcActive: false,
+		}
+		db.DB.Create(&newGroup)
+		log.Printf("[Account %d] Auto-Join: group %s (%s) added to database with custom active", accountID, groupName, jid.String())
+	}
+}
+
+func GetGroupStats(accountID uint) (customActive int64, total int64) {
+	db.DB.Model(&models.GroupTarget{}).Where("account_id = ?", accountID).Count(&total)
+	db.DB.Model(&models.GroupTarget{}).Where("account_id = ? AND is_custom_active = ?", accountID, true).Count(&customActive)
+	return
+}
+
+func SetAllCustomActive(accountID uint, enabled bool) error {
+	return db.DB.Model(&models.GroupTarget{}).Where("account_id = ?", accountID).Update("is_custom_active", enabled).Error
 }

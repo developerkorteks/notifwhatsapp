@@ -33,6 +33,12 @@ func RegisterHandlers(r *gin.Engine) {
 		api.POST("/wa/channels/active", setActiveChannel)
 
 		api.POST("/broadcast/custom", sendCustomBroadcast)
+
+		api.GET("/settings/auto-join", getAutoJoinSetting)
+		api.POST("/settings/auto-join", setAutoJoinSetting)
+
+		api.GET("/wa/groups/stats", getGroupStats)
+		api.POST("/wa/groups/toggle-all-custom", toggleAllCustom)
 	}
 
 	// Serve static files
@@ -245,4 +251,75 @@ func sendCustomBroadcast(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Broadcast sent"})
+}
+
+func getAutoJoinSetting(c *gin.Context) {
+	accountIDStr := c.Query("account_id")
+	accountID, _ := strconv.ParseUint(accountIDStr, 10, 32)
+
+	var conf models.AppConfig
+	enabled := false
+	if err := db.DB.First(&conf, "account_id = ? AND key = ?", uint(accountID), "auto_join_enabled").Error; err == nil {
+		enabled = conf.Value == "true"
+	}
+
+	c.JSON(http.StatusOK, gin.H{"enabled": enabled})
+}
+
+type AutoJoinReq struct {
+	AccountID uint `json:"account_id"`
+	Enabled   bool `json:"enabled"`
+}
+
+func setAutoJoinSetting(c *gin.Context) {
+	var req AutoJoinReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	value := "false"
+	if req.Enabled {
+		value = "true"
+	}
+
+	var conf models.AppConfig
+	result := db.DB.First(&conf, "account_id = ? AND key = ?", req.AccountID, "auto_join_enabled")
+	if result.Error != nil {
+		conf = models.AppConfig{AccountID: req.AccountID, Key: "auto_join_enabled", Value: value}
+		db.DB.Create(&conf)
+	} else {
+		conf.Value = value
+		db.DB.Save(&conf)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Auto-join setting updated", "enabled": req.Enabled})
+}
+
+func getGroupStats(c *gin.Context) {
+	accountIDStr := c.Query("account_id")
+	accountID, _ := strconv.ParseUint(accountIDStr, 10, 32)
+
+	customActive, total := whatsapp.GetGroupStats(uint(accountID))
+	c.JSON(http.StatusOK, gin.H{"custom_active": customActive, "total": total})
+}
+
+type ToggleAllCustomReq struct {
+	AccountID uint `json:"account_id"`
+	Enabled   bool `json:"enabled"`
+}
+
+func toggleAllCustom(c *gin.Context) {
+	var req ToggleAllCustomReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := whatsapp.SetAllCustomActive(req.AccountID, req.Enabled); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "All groups custom updated", "enabled": req.Enabled})
 }

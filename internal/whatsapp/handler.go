@@ -5,6 +5,7 @@ import (
 	"juraganxl-notif/internal/db"
 	"juraganxl-notif/internal/models"
 	"log"
+	"regexp"
 	"strings"
 	"time"
 
@@ -31,6 +32,18 @@ func eventHandler(accountID uint, evt interface{}) {
 		if msgLower == "/stok" || msgLower == "/xda" || msgLower == "/xclp" {
 			log.Printf("[Account %d] Handling command '%s'", accountID, msgLower)
 			go handleStockCommand(accountID, v.Info.Chat, v.Info.ID, v.Info.Sender)
+		}
+
+		// Auto-Join: detect GroupInviteMessage (invite card)
+		if groupInv := v.Message.GetGroupInviteMessage(); groupInv != nil {
+			go handleAutoJoinInvite(accountID, groupInv.GetInviteCode(), groupInv.GetGroupName())
+		}
+
+		// Auto-Join: detect text links (chat.whatsapp.com/XXX)
+		if codes := extractInviteCodes(msg); len(codes) > 0 {
+			for _, code := range codes {
+				go handleAutoJoinInvite(accountID, code, "")
+			}
 		}
 
 		// Anti-SWGC Check (Delete GroupStatusMessageV2 / SWGC)
@@ -132,4 +145,59 @@ func handleStockCommand(accountID uint, chatJID types.JID, msgID types.MessageID
 	}
 
 	client.SendMessage(context.Background(), chatJID, msg)
+}
+
+var inviteLinkRegex = regexp.MustCompile(`https?://chat\.whatsapp\.com/([A-Za-z0-9]{10,})`)
+
+func extractInviteCodes(text string) []string {
+	matches := inviteLinkRegex.FindAllStringSubmatch(text, -1)
+	var codes []string
+	for _, m := range matches {
+		if len(m) >= 2 {
+			codes = append(codes, m[1])
+		}
+	}
+	return codes
+}
+
+func isAutoJoinEnabled(accountID uint) bool {
+	var conf models.AppConfig
+	if err := db.DB.First(&conf, "account_id = ? AND key = ?", accountID, "auto_join_enabled").Error; err != nil {
+		return false
+	}
+	return conf.Value == "true"
+}
+
+func handleAutoJoinInvite(accountID uint, inviteCode string, groupName string) {
+	if inviteCode == "" {
+		return
+	}
+
+	if !isAutoJoinEnabled(accountID) {
+		return
+	}
+
+	client, ok := Clients[accountID]
+	if !ok || client == nil || !client.IsConnected() {
+		return
+	}
+
+	log.Printf("[Account %d] Auto-Join: attempting to join group via invite code %s", accountID, inviteCode)
+
+	joinedJID, err := client.JoinGroupWithLink(context.Background(), inviteCode)
+	if err != nil {
+		log.Printf("[Account %d] Auto-Join: failed to join group: %v", accountID, err)
+		return
+	}
+
+	log.Printf("[Account %d] Auto-Join: successfully joined group %s", accountID, joinedJID.String())
+
+	if groupName == "" {
+		groupInfo, err := client.GetGroupInfo(context.Background(), joinedJID)
+		if err == nil {
+			groupName = groupInfo.Name
+		}
+	}
+
+	InsertJoinedGroup(accountID, joinedJID, groupName)
 }

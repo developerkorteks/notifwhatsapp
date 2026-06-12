@@ -49,6 +49,17 @@
                     <button onclick="generateQR()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full transition font-medium text-sm">Generate QR</button>
                     <button onclick="logout()" class="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 px-4 py-2 rounded w-full transition font-medium text-sm">Logout App</button>
                 </div>
+
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <div>
+                        <span class="text-sm font-medium text-gray-700">Auto-Join Group dari Link</span>
+                        <p class="text-xs text-gray-500">Otomatis join group dari link invite yang dikirim di chat</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="autoJoinToggle" onchange="toggleAutoJoin()" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                    </label>
+                </div>
             </div>
 
             <!-- Custom Broadcast Panel -->
@@ -106,8 +117,18 @@
             <!-- Groups Panel -->
             <div class="bg-white rounded-xl shadow p-6 border border-gray-100 h-[30rem] flex flex-col">
                 <div class="flex justify-between items-center border-b pb-2 mb-4">
-                    <h2 class="text-lg font-semibold">Target Groups</h2>
-                    <button onclick="syncGroups()" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded">Sync</button>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-lg font-semibold">Target Groups</h2>
+                        <span id="customCounter" class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">0/0</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="relative inline-flex items-center cursor-pointer" title="Toggle All Custom">
+                            <input type="checkbox" id="allCustomToggle" onchange="toggleAllCustom()" class="sr-only peer">
+                            <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"></div>
+                        </label>
+                        <span class="text-xs text-gray-500">All Custom</span>
+                        <button onclick="syncGroups()" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded">Sync</button>
+                    </div>
                 </div>
                 <input type="text" id="searchGroup" onkeyup="filterGroups()" placeholder="Search groups..." class="w-full border border-gray-200 rounded p-2 text-sm mb-3 focus:outline-none focus:ring-1 focus:ring-green-500">
                 <!-- Table headers -->
@@ -164,6 +185,7 @@
                 fetchStatus();
                 loadChannels();
                 loadGroups();
+                loadAutoJoinSetting();
             } else {
                 currentAccountID = null;
                 document.getElementById('channelList').innerHTML = '';
@@ -172,6 +194,7 @@
                 badge.className = 'px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 bg-gray-100 text-gray-600 min-w-[130px] justify-center';
                 badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-gray-400"></span> Disconnected';
                 document.getElementById('qrContainer').classList.add('hidden');
+                document.getElementById('autoJoinToggle').checked = false;
             }
         }
 
@@ -240,6 +263,26 @@
             }
         }
 
+        async function loadAutoJoinSetting() {
+            if (!currentAccountID) return;
+            try {
+                const res = await fetch(`${API}/settings/auto-join?account_id=${currentAccountID}`);
+                const data = await res.json();
+                document.getElementById('autoJoinToggle').checked = data.enabled;
+            } catch (e) {
+                document.getElementById('autoJoinToggle').checked = false;
+            }
+        }
+
+        async function toggleAutoJoin() {
+            if (!currentAccountID) return;
+            const enabled = document.getElementById('autoJoinToggle').checked;
+            await fetch(`${API}/settings/auto-join`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({account_id: parseInt(currentAccountID), enabled})
+            });
+        }
+
         async function syncChannels() {
             if (!currentAccountID) return alert("Select an account first");
             await fetch(`${API}/wa/channels/sync?account_id=${currentAccountID}`, { method: 'POST' });
@@ -293,6 +336,29 @@
                     </div>
                 </div>
             `).join('');
+            loadGroupStats();
+        }
+
+        async function loadGroupStats() {
+            if (!currentAccountID) return;
+            try {
+                const res = await fetch(`${API}/wa/groups/stats?account_id=${currentAccountID}`);
+                const data = await res.json();
+                document.getElementById('customCounter').textContent = `${data.custom_active}/${data.total}`;
+                document.getElementById('allCustomToggle').checked = data.total > 0 && data.custom_active === data.total;
+            } catch (e) {
+                document.getElementById('customCounter').textContent = '0/0';
+            }
+        }
+
+        async function toggleAllCustom() {
+            if (!currentAccountID) return;
+            const enabled = document.getElementById('allCustomToggle').checked;
+            await fetch(`${API}/wa/groups/toggle-all-custom`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({account_id: parseInt(currentAccountID), enabled})
+            });
+            loadGroups();
         }
 
         async function updateGroupState(jid) {
@@ -304,12 +370,13 @@
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     account_id: parseInt(currentAccountID),
-					jid, 
-					is_stock_active: stockChecked, 
+					jid,
+					is_stock_active: stockChecked,
 					is_custom_active: customChecked,
 					is_anti_swgc_active: antiSwgcChecked
 				})
             });
+            loadGroupStats();
         }
 
         async function sendBroadcast() {
