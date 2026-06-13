@@ -1,0 +1,18 @@
+# Binaries
+juragan-notif
+swgc-lab
+
+# Database files
+*.db
+*.db.bak
+*.db-shm
+*.db-wal
+
+# Session files
+sessions/
+
+# Logs
+logs.txt
+
+# Test images
+test_*.png
