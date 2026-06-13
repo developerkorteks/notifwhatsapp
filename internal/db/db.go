@@ -24,6 +24,7 @@ func InitDB() {
 		&models.GroupTarget{},
 		&models.ChannelTarget{},
 		&models.StockMemory{},
+		&models.PromoMessage{},
 	)
 	if err != nil {
 		log.Fatalf("failed to auto migrate database schema: %v", err)

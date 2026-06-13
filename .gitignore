@@ -1,6 +1,7 @@
 # Binaries
 juragan-notif
 swgc-lab
+server
 
 # Database files
 *.db
@@ -16,3 +17,6 @@ logs.txt
 
 # Test images
 test_*.png
+
+# Promo media uploads
+media/

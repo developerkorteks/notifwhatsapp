@@ -143,6 +143,69 @@
                 </div>
             </div>
         </div>
+
+        <!-- Promo Scheduler Panel -->
+        <div class="bg-white rounded-xl shadow p-6 border border-gray-100 space-y-4">
+            <div class="flex justify-between items-center border-b pb-2">
+                <div class="flex items-center gap-3">
+                    <h2 class="text-lg font-semibold">Promo Scheduler</h2>
+                    <span id="promoStatusBadge" class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">Off</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs text-gray-500">Sends/day:</label>
+                        <input type="number" id="promoSendsPerDay" value="5" min="1" max="20" class="w-14 border rounded p-1 text-sm text-center focus:ring-green-500 focus:outline-none">
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="promoToggle" onchange="togglePromoScheduler()" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Add/Edit Promo Form -->
+            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 id="promoFormTitle" class="text-sm font-semibold text-gray-700">Add Promo Message to Pool</h3>
+                    <button id="promoCancelEdit" onclick="cancelEditPromo()" class="hidden text-xs text-red-500 hover:text-red-700">Cancel Edit</button>
+                </div>
+                <input type="hidden" id="promoEditId" value="">
+                <div class="flex flex-wrap gap-3">
+                    <label class="flex items-center gap-1 text-xs cursor-pointer">
+                        <input type="radio" name="promoMsgType" value="standard" checked onclick="togglePromoPolls()" class="text-green-600"> Standard
+                    </label>
+                    <label class="flex items-center gap-1 text-xs cursor-pointer">
+                        <input type="radio" name="promoMsgType" value="view_once" onclick="togglePromoPolls()" class="text-green-600"> View Once
+                    </label>
+                    <label class="flex items-center gap-1 text-xs cursor-pointer">
+                        <input type="radio" name="promoMsgType" value="swgc" onclick="togglePromoPolls()" class="text-green-600"> SWGC
+                    </label>
+                    <label class="flex items-center gap-1 text-xs cursor-pointer">
+                        <input type="radio" name="promoMsgType" value="poll" onclick="togglePromoPolls()" class="text-green-600"> Poll
+                    </label>
+                </div>
+                <div id="promoMediaContainer">
+                    <input type="file" id="promoMediaUpload" accept="image/*,video/*,audio/*" class="w-full text-xs border p-1.5 rounded">
+                </div>
+                <textarea id="promoMsgInput" rows="3" class="w-full border rounded p-2 text-sm focus:ring-2 focus:ring-green-500 focus:outline-none" placeholder="Promo message text..."></textarea>
+                <div id="promoPollContainer" class="hidden space-y-2">
+                    <div id="promoPollInputs" class="space-y-1">
+                        <input type="text" class="promo-poll-opt w-full border rounded p-1.5 text-sm" placeholder="Option 1">
+                        <input type="text" class="promo-poll-opt w-full border rounded p-1.5 text-sm" placeholder="Option 2">
+                    </div>
+                    <button onclick="addPromoPollOption()" class="text-xs text-blue-600 hover:text-blue-800">+ Add Option</button>
+                </div>
+                <button id="promoSubmitBtn" onclick="submitPromoMessage()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded text-sm font-medium">Add to Pool</button>
+            </div>
+
+            <!-- Message Pool List -->
+            <div>
+                <h3 class="text-sm font-semibold text-gray-700 mb-2">Message Pool <span id="promoPoolCount" class="text-xs text-gray-400">(0)</span></h3>
+                <div id="promoMessageList" class="space-y-2 max-h-64 overflow-y-auto custom-scrollbar pr-2">
+                    <!-- Dynamic -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Scripts -->
@@ -186,6 +249,8 @@
                 loadChannels();
                 loadGroups();
                 loadAutoJoinSetting();
+                loadPromoSettings();
+                loadPromoMessages();
             } else {
                 currentAccountID = null;
                 document.getElementById('channelList').innerHTML = '';
@@ -462,6 +527,197 @@
                 const text = item.querySelector('span').innerText.toLowerCase();
                 item.style.display = text.includes(input) ? '' : 'none';
             });
+        }
+
+        // --- Promo Scheduler Functions ---
+
+        async function loadPromoSettings() {
+            if (!currentAccountID) return;
+            try {
+                const res = await fetch(`${API}/promo/settings?account_id=${currentAccountID}`);
+                const data = await res.json();
+                document.getElementById('promoToggle').checked = data.enabled;
+                document.getElementById('promoSendsPerDay').value = data.sends_per_day;
+                const badge = document.getElementById('promoStatusBadge');
+                if (data.is_sending_now) {
+                    badge.className = 'text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700';
+                    badge.textContent = 'Sending...';
+                } else if (data.is_running) {
+                    badge.className = 'text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700';
+                    badge.textContent = 'Active';
+                } else {
+                    badge.className = 'text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500';
+                    badge.textContent = 'Off';
+                }
+            } catch (e) {
+                console.error('Failed to load promo settings', e);
+            }
+        }
+
+        async function togglePromoScheduler() {
+            if (!currentAccountID) return;
+            const enabled = document.getElementById('promoToggle').checked;
+            const sendsPerDay = parseInt(document.getElementById('promoSendsPerDay').value) || 5;
+            await fetch(`${API}/promo/settings`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({account_id: parseInt(currentAccountID), enabled, sends_per_day: sendsPerDay})
+            });
+            loadPromoSettings();
+        }
+
+        async function loadPromoMessages() {
+            if (!currentAccountID) return;
+            const res = await fetch(`${API}/promo/messages?account_id=${currentAccountID}`);
+            const data = await res.json() || [];
+            document.getElementById('promoPoolCount').textContent = `(${data.length})`;
+            const list = document.getElementById('promoMessageList');
+            const typeLabels = {standard: 'Text', view_once: 'View Once', swgc: 'SWGC', poll: 'Poll'};
+            list.innerHTML = data.map(m => {
+                const pollPreview = m.PollOptions ? ` | Opts: ${m.PollOptions.replaceAll('||', ', ')}` : '';
+                return `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border ${m.IsActive ? 'border-green-300' : 'border-gray-200 opacity-60'} gap-2">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium">${typeLabels[m.MsgType] || m.MsgType}</span>
+                            ${m.MediaPath ? '<span class="text-xs px-1.5 py-0.5 rounded bg-purple-100 text-purple-600">Media</span>' : ''}
+                        </div>
+                        <p class="text-sm text-gray-700 truncate">${m.Message || '(media only)'}${pollPreview}</p>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button onclick="testPromoMsg(${m.ID})" class="text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-700 hover:bg-yellow-200" title="Send this message now as test">Test</button>
+                        <button onclick="editPromoMsg(${m.ID})" class="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700 hover:bg-blue-200">Edit</button>
+                        <button onclick="togglePromoMsg(${m.ID})" class="text-xs px-2 py-1 rounded ${m.IsActive ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-500'}">${m.IsActive ? 'Active' : 'Off'}</button>
+                        <button onclick="deletePromoMsg(${m.ID})" class="text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200">Del</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        async function submitPromoMessage() {
+            if (!currentAccountID) return alert("Select an account first");
+            const editId = document.getElementById('promoEditId').value;
+            const msg = document.getElementById('promoMsgInput').value;
+            const msgType = document.querySelector('input[name="promoMsgType"]:checked').value;
+            const fileInput = document.getElementById('promoMediaUpload');
+
+            let pollOpts = '';
+            if (msgType === 'poll') {
+                const opts = [];
+                document.querySelectorAll('.promo-poll-opt').forEach(i => {
+                    if (i.value.trim()) opts.push(i.value.trim());
+                });
+                if (opts.length < 2) return alert("Poll needs at least 2 options");
+                pollOpts = opts.join('||');
+            }
+
+            if (!msg && (!fileInput.files || fileInput.files.length === 0) && !editId) return alert("Message or media required");
+
+            const formData = new FormData();
+            formData.append('account_id', currentAccountID);
+            formData.append('message', msg);
+            formData.append('msg_type', msgType);
+            formData.append('poll_options', pollOpts);
+            if (fileInput.files && fileInput.files.length > 0) {
+                formData.append('media', fileInput.files[0]);
+            }
+
+            try {
+                let url = `${API}/promo/messages`;
+                let method = 'POST';
+                if (editId) {
+                    url = `${API}/promo/messages/${editId}`;
+                    method = 'PUT';
+                }
+                const res = await fetch(url, { method, body: formData });
+                if (!res.ok) throw new Error((await res.json()).error);
+                cancelEditPromo();
+                loadPromoMessages();
+            } catch (e) {
+                alert("Failed: " + e.message);
+            }
+        }
+
+        async function editPromoMsg(id) {
+            if (!currentAccountID) return;
+            const res = await fetch(`${API}/promo/messages?account_id=${currentAccountID}`);
+            const data = await res.json() || [];
+            const m = data.find(x => x.ID === id);
+            if (!m) return alert("Message not found");
+
+            document.getElementById('promoEditId').value = m.ID;
+            document.getElementById('promoMsgInput').value = m.Message || '';
+            document.getElementById('promoMediaUpload').value = '';
+
+            const radios = document.querySelectorAll('input[name="promoMsgType"]');
+            radios.forEach(r => r.checked = r.value === m.MsgType);
+            togglePromoPolls();
+
+            if (m.MsgType === 'poll' && m.PollOptions) {
+                const opts = m.PollOptions.split('||');
+                const container = document.getElementById('promoPollInputs');
+                container.innerHTML = '';
+                opts.forEach((opt, i) => {
+                    container.innerHTML += `<input type="text" class="promo-poll-opt w-full border rounded p-1.5 text-sm ${i > 0 ? 'mt-1' : ''}" value="${opt}" placeholder="Option ${i+1}">`;
+                });
+            }
+
+            document.getElementById('promoFormTitle').textContent = 'Edit Promo Message';
+            document.getElementById('promoSubmitBtn').textContent = 'Save Changes';
+            document.getElementById('promoCancelEdit').classList.remove('hidden');
+        }
+
+        function cancelEditPromo() {
+            document.getElementById('promoEditId').value = '';
+            document.getElementById('promoMsgInput').value = '';
+            document.getElementById('promoMediaUpload').value = '';
+            document.getElementById('promoFormTitle').textContent = 'Add Promo Message to Pool';
+            document.getElementById('promoSubmitBtn').textContent = 'Add to Pool';
+            document.getElementById('promoCancelEdit').classList.add('hidden');
+            const radios = document.querySelectorAll('input[name="promoMsgType"]');
+            radios[0].checked = true;
+            togglePromoPolls();
+            document.getElementById('promoPollInputs').innerHTML = `
+                <input type="text" class="promo-poll-opt w-full border rounded p-1.5 text-sm" placeholder="Option 1">
+                <input type="text" class="promo-poll-opt w-full border rounded p-1.5 text-sm" placeholder="Option 2">`;
+        }
+
+        async function testPromoMsg(id) {
+            if (!currentAccountID) return;
+            if (!confirm("Test send this promo message to ALL custom-active groups now? (one-by-one with 5-15min delay)")) return;
+            try {
+                const res = await fetch(`${API}/promo/test`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({account_id: parseInt(currentAccountID), message_id: id})
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                alert("Test send started! Check server logs for progress.");
+            } catch (e) {
+                alert("Failed: " + e.message);
+            }
+        }
+
+        async function togglePromoMsg(id) {
+            await fetch(`${API}/promo/messages/${id}/toggle`, { method: 'POST' });
+            loadPromoMessages();
+        }
+
+        async function deletePromoMsg(id) {
+            if (!confirm("Delete this promo message?")) return;
+            await fetch(`${API}/promo/messages/${id}`, { method: 'DELETE' });
+            loadPromoMessages();
+        }
+
+        function togglePromoPolls() {
+            const type = document.querySelector('input[name="promoMsgType"]:checked').value;
+            document.getElementById('promoPollContainer').style.display = type === 'poll' ? 'block' : 'none';
+            document.getElementById('promoMediaContainer').style.display = type === 'poll' ? 'none' : 'block';
+        }
+
+        function addPromoPollOption() {
+            const div = document.createElement('div');
+            div.innerHTML = '<input type="text" class="promo-poll-opt w-full border rounded p-1.5 text-sm mt-1" placeholder="Another option">';
+            document.getElementById('promoPollInputs').appendChild(div);
         }
 
         // Init

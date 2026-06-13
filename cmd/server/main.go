@@ -3,6 +3,7 @@ package main
 import (
 	"juraganxl-notif/internal/api"
 	"juraganxl-notif/internal/db"
+	"juraganxl-notif/internal/promo"
 	"juraganxl-notif/internal/scraper"
 	"juraganxl-notif/internal/whatsapp"
 	"log"
@@ -18,6 +19,7 @@ func main() {
 
 	log.Println("Starting Background Workers...")
 	scraper.InitCron()
+	promo.StartScheduler()
 
 	log.Println("Starting Web Dashboard...")
 	api.StartServer()

@@ -1,13 +1,18 @@
 package api
 
 import (
+	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"juraganxl-notif/internal/db"
 	"juraganxl-notif/internal/models"
+	"juraganxl-notif/internal/promo"
 	"juraganxl-notif/internal/whatsapp"
 
 	"github.com/gin-gonic/gin"
@@ -39,6 +44,15 @@ func RegisterHandlers(r *gin.Engine) {
 
 		api.GET("/wa/groups/stats", getGroupStats)
 		api.POST("/wa/groups/toggle-all-custom", toggleAllCustom)
+
+		api.GET("/promo/messages", getPromoMessages)
+		api.POST("/promo/messages", createPromoMessage)
+		api.DELETE("/promo/messages/:id", deletePromoMessage)
+		api.POST("/promo/messages/:id/toggle", togglePromoMessage)
+		api.PUT("/promo/messages/:id", updatePromoMessage)
+		api.GET("/promo/settings", getPromoSettings)
+		api.POST("/promo/settings", setPromoSettings)
+		api.POST("/promo/test", testPromoSend)
 	}
 
 	// Serve static files
@@ -283,15 +297,7 @@ func setAutoJoinSetting(c *gin.Context) {
 		value = "true"
 	}
 
-	var conf models.AppConfig
-	result := db.DB.First(&conf, "account_id = ? AND key = ?", req.AccountID, "auto_join_enabled")
-	if result.Error != nil {
-		conf = models.AppConfig{AccountID: req.AccountID, Key: "auto_join_enabled", Value: value}
-		db.DB.Create(&conf)
-	} else {
-		conf.Value = value
-		db.DB.Save(&conf)
-	}
+	upsertAppConfig(req.AccountID, "auto_join_enabled", value)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Auto-join setting updated", "enabled": req.Enabled})
 }
@@ -322,4 +328,231 @@ func toggleAllCustom(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "All groups custom updated", "enabled": req.Enabled})
+}
+
+// --- Promo Handlers ---
+
+func getPromoMessages(c *gin.Context) {
+	accountIDStr := c.Query("account_id")
+	accountID, _ := strconv.ParseUint(accountIDStr, 10, 32)
+
+	var messages []models.PromoMessage
+	db.DB.Where("account_id = ?", uint(accountID)).Order("created_at desc").Find(&messages)
+	c.JSON(http.StatusOK, messages)
+}
+
+func createPromoMessage(c *gin.Context) {
+	if err := c.Request.ParseMultipartForm(10 << 20); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse form data"})
+		return
+	}
+
+	accountIDStr := c.PostForm("account_id")
+	accountID, _ := strconv.ParseUint(accountIDStr, 10, 32)
+	msg := c.PostForm("message")
+	msgType := c.PostForm("msg_type")
+	pollOptions := c.PostForm("poll_options")
+
+	var mediaPath string
+	var mimeType string
+
+	file, header, err := c.Request.FormFile("media")
+	if err == nil {
+		defer file.Close()
+		fileBytes, _ := io.ReadAll(file)
+		mimeType = header.Header.Get("Content-Type")
+
+		os.MkdirAll("media/promo", 0755)
+		filename := fmt.Sprintf("%d_%d_%s", accountID, time.Now().UnixMilli(), header.Filename)
+		mediaPath = filepath.Join("media", "promo", filename)
+		os.WriteFile(mediaPath, fileBytes, 0644)
+	}
+
+	pm := models.PromoMessage{
+		AccountID:   uint(accountID),
+		Message:     msg,
+		MsgType:     msgType,
+		PollOptions: pollOptions,
+		MediaPath:   mediaPath,
+		MimeType:    mimeType,
+		IsActive:    true,
+	}
+	if err := db.DB.Create(&pm).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, pm)
+}
+
+func deletePromoMessage(c *gin.Context) {
+	idStr := c.Param("id")
+	id, _ := strconv.ParseUint(idStr, 10, 32)
+
+	var pm models.PromoMessage
+	if err := db.DB.First(&pm, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Message not found"})
+		return
+	}
+
+	if pm.MediaPath != "" {
+		os.Remove(pm.MediaPath)
+	}
+
+	db.DB.Delete(&pm)
+	c.JSON(http.StatusOK, gin.H{"message": "Promo message deleted"})
+}
+
+func togglePromoMessage(c *gin.Context) {
+	idStr := c.Param("id")
+	id, _ := strconv.ParseUint(idStr, 10, 32)
+
+	var pm models.PromoMessage
+	if err := db.DB.First(&pm, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Message not found"})
+		return
+	}
+
+	pm.IsActive = !pm.IsActive
+	db.DB.Save(&pm)
+	c.JSON(http.StatusOK, gin.H{"message": "Toggled", "is_active": pm.IsActive})
+}
+
+func updatePromoMessage(c *gin.Context) {
+	idStr := c.Param("id")
+	id, _ := strconv.ParseUint(idStr, 10, 32)
+
+	var pm models.PromoMessage
+	if err := db.DB.First(&pm, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Message not found"})
+		return
+	}
+
+	if err := c.Request.ParseMultipartForm(10 << 20); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse form data"})
+		return
+	}
+
+	pm.Message = c.PostForm("message")
+	pm.MsgType = c.PostForm("msg_type")
+	pm.PollOptions = c.PostForm("poll_options")
+
+	file, header, err := c.Request.FormFile("media")
+	if err == nil {
+		defer file.Close()
+		fileBytes, _ := io.ReadAll(file)
+		mimeType := header.Header.Get("Content-Type")
+
+		if pm.MediaPath != "" {
+			os.Remove(pm.MediaPath)
+		}
+
+		os.MkdirAll("media/promo", 0755)
+		filename := fmt.Sprintf("%d_%d_%s", pm.AccountID, time.Now().UnixMilli(), header.Filename)
+		pm.MediaPath = filepath.Join("media", "promo", filename)
+		pm.MimeType = mimeType
+		os.WriteFile(pm.MediaPath, fileBytes, 0644)
+	}
+
+	removeMedia := c.PostForm("remove_media")
+	if removeMedia == "true" && pm.MediaPath != "" {
+		os.Remove(pm.MediaPath)
+		pm.MediaPath = ""
+		pm.MimeType = ""
+	}
+
+	db.DB.Save(&pm)
+	c.JSON(http.StatusOK, pm)
+}
+
+func getPromoSettings(c *gin.Context) {
+	accountIDStr := c.Query("account_id")
+	accountID, _ := strconv.ParseUint(accountIDStr, 10, 32)
+
+	enabled := false
+	sendsPerDay := 5
+
+	var confEnabled models.AppConfig
+	if err := db.DB.First(&confEnabled, "account_id = ? AND key = ?", uint(accountID), "promo_enabled").Error; err == nil {
+		enabled = confEnabled.Value == "true"
+	}
+
+	var confSends models.AppConfig
+	if err := db.DB.First(&confSends, "account_id = ? AND key = ?", uint(accountID), "promo_sends_per_day").Error; err == nil {
+		if n, e := strconv.Atoi(confSends.Value); e == nil {
+			sendsPerDay = n
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"enabled":        enabled,
+		"sends_per_day":  sendsPerDay,
+		"is_running":     promo.IsSchedulerRunning(uint(accountID)),
+		"is_sending_now": promo.IsSending(uint(accountID)),
+	})
+}
+
+type PromoSettingsReq struct {
+	AccountID   uint `json:"account_id"`
+	Enabled     bool `json:"enabled"`
+	SendsPerDay int  `json:"sends_per_day"`
+}
+
+func setPromoSettings(c *gin.Context) {
+	var req PromoSettingsReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if req.SendsPerDay < 1 {
+		req.SendsPerDay = 5
+	}
+
+	upsertAppConfig(req.AccountID, "promo_enabled", strconv.FormatBool(req.Enabled))
+	upsertAppConfig(req.AccountID, "promo_sends_per_day", strconv.Itoa(req.SendsPerDay))
+
+	promo.RestartAccountScheduler(req.AccountID)
+
+	c.JSON(http.StatusOK, gin.H{"message": "Promo settings updated"})
+}
+
+type TestPromoReq struct {
+	AccountID uint `json:"account_id"`
+	MessageID uint `json:"message_id"`
+}
+
+func testPromoSend(c *gin.Context) {
+	var req TestPromoReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var pm models.PromoMessage
+	if err := db.DB.First(&pm, req.MessageID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Promo message not found"})
+		return
+	}
+
+	if pm.AccountID != req.AccountID {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Message does not belong to this account"})
+		return
+	}
+
+	go promo.SendPromoToGroups(req.AccountID, pm)
+
+	c.JSON(http.StatusOK, gin.H{"message": "Test promo send started. Check server logs."})
+}
+
+func upsertAppConfig(accountID uint, key, value string) {
+	var conf models.AppConfig
+	result := db.DB.First(&conf, "account_id = ? AND key = ?", accountID, key)
+	if result.Error != nil {
+		conf = models.AppConfig{AccountID: accountID, Key: key, Value: value}
+		db.DB.Create(&conf)
+	} else {
+		conf.Value = value
+		db.DB.Save(&conf)
+	}
 }

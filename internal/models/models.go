@@ -35,3 +35,14 @@ type StockMemory struct {
 	Key       string `gorm:"uniqueIndex"`
 	StockJSON string
 }
+
+type PromoMessage struct {
+	gorm.Model
+	AccountID   uint
+	Message     string
+	MsgType     string
+	PollOptions string
+	MediaPath   string
+	MimeType    string
+	IsActive    bool
+}
