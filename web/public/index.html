@@ -66,6 +66,20 @@
             <div class="md:col-span-2 bg-white rounded-xl shadow p-6 border border-gray-100 space-y-4">
                 <h2 class="text-lg font-semibold border-b pb-2">Send Custom Notification</h2>
 
+                <div class="bg-gray-50 rounded-lg p-3 border border-gray-200 space-y-2">
+                    <div class="flex flex-wrap gap-4">
+                        <label class="flex items-center gap-2 text-sm cursor-pointer">
+                            <input type="radio" name="broadcastTarget" value="all" checked onchange="toggleBroadcastTarget()" class="text-green-600 focus:ring-green-500"> All Custom Groups
+                        </label>
+                        <label class="flex items-center gap-2 text-sm cursor-pointer">
+                            <input type="radio" name="broadcastTarget" value="single" onchange="toggleBroadcastTarget()" class="text-green-600 focus:ring-green-500"> Single Group
+                        </label>
+                    </div>
+                    <select id="singleGroupSelector" class="hidden w-full border border-gray-300 rounded p-2 text-sm focus:ring-green-500 focus:outline-none bg-white">
+                        <option value="">Select a group...</option>
+                    </select>
+                </div>
+
                 <div class="flex flex-wrap gap-4 mb-2">
                     <label class="flex items-center gap-2 text-sm cursor-pointer">
                         <input type="radio" name="msgType" value="standard" checked onclick="togglePollOpts()" class="text-green-600 focus:ring-green-500"> Standard Text
@@ -213,7 +227,18 @@
     <script>
         const API = window.location.origin + '/api';
         let currentAccountID = null;
-        
+        let cachedGroups = [];
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
+
         async function loadAccounts() {
             try {
                 const res = await fetch(`${API}/accounts`);
@@ -226,7 +251,7 @@
                     currentAccountID = null;
                 } else {
                     data.forEach(acc => {
-                        select.innerHTML += `<option value="${acc.ID}">${acc.SessionName}</option>`;
+                        select.innerHTML += `<option value="${acc.ID}">${escapeHtml(acc.SessionName)}</option>`;
                     });
                     
                     // Maintain selection if exists, else first
@@ -253,8 +278,10 @@
                 loadPromoMessages();
             } else {
                 currentAccountID = null;
+                cachedGroups = [];
                 document.getElementById('channelList').innerHTML = '';
                 document.getElementById('groupList').innerHTML = '';
+                renderSingleGroupOptions();
                 const badge = document.getElementById('statusBadge');
                 badge.className = 'px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 bg-gray-100 text-gray-600 min-w-[130px] justify-center';
                 badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-gray-400"></span> Disconnected';
@@ -267,13 +294,16 @@
             const name = prompt("Enter a name for the new WhatsApp Account (e.g., 'Bot Support', 'Main'):");
             if (!name || name.trim() === "") return;
             try {
-                await fetch(`${API}/accounts`, {
+                const res = await fetch(`${API}/accounts`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({session_name: name.trim()})
                 });
+                const created = await res.json();
+                if (!res.ok) throw new Error(created.error || 'Failed to create account');
+                currentAccountID = created.ID;
                 loadAccounts();
             } catch (e) {
-                alert("Failed to create account. Name must be unique.");
+                alert("Failed to create account: " + e.message);
             }
         }
 
@@ -350,58 +380,105 @@
 
         async function syncChannels() {
             if (!currentAccountID) return alert("Select an account first");
-            await fetch(`${API}/wa/channels/sync?account_id=${currentAccountID}`, { method: 'POST' });
-            loadChannels();
+            try {
+                const res = await fetch(`${API}/wa/channels/sync?account_id=${currentAccountID}`, { method: 'POST' });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Sync failed');
+                await loadChannels();
+                alert(data.message || 'Channels synced');
+            } catch (e) {
+                alert('Sync channels failed: ' + e.message);
+            }
         }
 
         async function loadChannels() {
             if (!currentAccountID) return;
-            const res = await fetch(`${API}/wa/channels?account_id=${currentAccountID}`);
+            const res = await fetch(`${API}/wa/channels?account_id=${currentAccountID}`, { cache: 'no-store' });
             const data = await res.json() || [];
             const list = document.getElementById('channelList');
             list.innerHTML = data.map(ch => `
                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition border ${ch.IsActive ? 'border-green-400 ring-1 ring-green-400' : 'border-gray-200'}">
-                    <span class="text-sm truncate w-2/3">${ch.ChannelName}</span>
-                    <button onclick="setActiveChannel('${ch.JID}')" class="text-xs px-3 py-1 rounded ${ch.IsActive ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">${ch.IsActive ? 'Active' : 'Set Active'}</button>
+                    <span class="text-sm truncate w-2/3">${escapeHtml(ch.ChannelName)}</span>
+                    <button data-jid="${escapeHtml(ch.JID)}" class="channel-active-btn text-xs px-3 py-1 rounded ${ch.IsActive ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">${ch.IsActive ? 'Active' : 'Set Active'}</button>
                 </div>
             `).join('');
+            document.querySelectorAll('.channel-active-btn').forEach(btn => {
+                btn.addEventListener('click', () => setActiveChannel(btn.dataset.jid));
+            });
         }
 
         async function setActiveChannel(jid) {
             if (!currentAccountID) return;
-            await fetch(`${API}/wa/channels/active`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({account_id: parseInt(currentAccountID), jid})
-            });
-            loadChannels();
+            try {
+                const res = await fetch(`${API}/wa/channels/active`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    cache: 'no-store',
+                    body: JSON.stringify({account_id: parseInt(currentAccountID), jid})
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Failed to activate channel');
+                await loadChannels();
+                alert(data.message || 'Active channel updated');
+            } catch (e) {
+                alert('Set active channel failed: ' + e.message);
+            }
         }
 
         async function syncGroups() {
             if (!currentAccountID) return alert("Select an account first");
-            await fetch(`${API}/wa/groups/sync?account_id=${currentAccountID}`, { method: 'POST' });
-            loadGroups();
+            try {
+                const res = await fetch(`${API}/wa/groups/sync?account_id=${currentAccountID}`, { method: 'POST' });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Sync failed');
+                await loadGroups();
+                alert(data.message || 'Groups synced');
+            } catch (e) {
+                alert('Sync groups failed: ' + e.message);
+            }
         }
 
         async function loadGroups() {
             if (!currentAccountID) return;
             const res = await fetch(`${API}/wa/groups?account_id=${currentAccountID}`);
             const data = await res.json() || [];
+            cachedGroups = data;
             const list = document.getElementById('groupList');
             list.innerHTML = data.map(g => `
                 <div class="grid grid-cols-12 gap-2 items-center p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition border border-gray-200">
-                    <span class="col-span-6 text-sm truncate" title="${g.GroupName}">${g.GroupName}</span>
+                    <span class="col-span-6 text-sm truncate" title="${escapeHtml(g.GroupName || g.JID)}">${escapeHtml(g.GroupName || g.JID)}</span>
                     <div class="col-span-2 text-center">
-                        <input type="checkbox" id="stock_${g.JID}" onchange="updateGroupState('${g.JID}')" ${g.IsStockActive ? 'checked' : ''} class="w-4 h-4 text-green-600 rounded">
+                        <input type="checkbox" data-jid="${escapeHtml(g.JID)}" data-kind="stock" ${g.IsStockActive ? 'checked' : ''} class="group-toggle w-4 h-4 text-green-600 rounded">
                     </div>
                     <div class="col-span-2 text-center">
-                        <input type="checkbox" id="custom_${g.JID}" onchange="updateGroupState('${g.JID}')" ${g.IsCustomActive ? 'checked' : ''} class="w-4 h-4 text-green-600 rounded">
+                        <input type="checkbox" data-jid="${escapeHtml(g.JID)}" data-kind="custom" ${g.IsCustomActive ? 'checked' : ''} class="group-toggle w-4 h-4 text-green-600 rounded">
                     </div>
                     <div class="col-span-2 text-center">
-                        <input type="checkbox" id="antiswgc_${g.JID}" onchange="updateGroupState('${g.JID}')" ${g.IsAntiSwgcActive ? 'checked' : ''} class="w-4 h-4 text-red-600 rounded">
+                        <input type="checkbox" data-jid="${escapeHtml(g.JID)}" data-kind="antiswgc" ${g.IsAntiSwgcActive ? 'checked' : ''} class="group-toggle w-4 h-4 text-red-600 rounded">
                     </div>
                 </div>
             `).join('');
+            document.querySelectorAll('.group-toggle').forEach(input => {
+                input.addEventListener('change', () => updateGroupState(input.dataset.jid));
+            });
+            renderSingleGroupOptions();
             loadGroupStats();
+        }
+
+        function renderSingleGroupOptions() {
+            const select = document.getElementById('singleGroupSelector');
+            if (!select) return;
+            const currentValue = select.value;
+            select.innerHTML = '<option value="">Select a group...</option>' + cachedGroups.map(g =>
+                `<option value="${escapeHtml(g.JID)}">${escapeHtml(g.GroupName || g.JID)}</option>`
+            ).join('');
+            if (cachedGroups.find(g => g.JID === currentValue)) {
+                select.value = currentValue;
+            }
+        }
+
+        function toggleBroadcastTarget() {
+            const target = document.querySelector('input[name="broadcastTarget"]:checked').value;
+            document.getElementById('singleGroupSelector').classList.toggle('hidden', target !== 'single');
         }
 
         async function loadGroupStats() {
@@ -428,9 +505,10 @@
 
         async function updateGroupState(jid) {
             if (!currentAccountID) return;
-            const stockChecked = document.getElementById(`stock_${jid}`).checked;
-            const customChecked = document.getElementById(`custom_${jid}`).checked;
-            const antiSwgcChecked = document.getElementById(`antiswgc_${jid}`).checked;
+            const toggles = Array.from(document.querySelectorAll('.group-toggle')).filter(input => input.dataset.jid === jid);
+            const stockChecked = toggles.find(input => input.dataset.kind === 'stock').checked;
+            const customChecked = toggles.find(input => input.dataset.kind === 'custom').checked;
+            const antiSwgcChecked = toggles.find(input => input.dataset.kind === 'antiswgc').checked;
             await fetch(`${API}/wa/groups/settings`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
@@ -450,6 +528,8 @@
             const btn = document.querySelector('button[onclick="sendBroadcast()"]');
             const msg = document.getElementById('broadcastMsg').value;
             const type = document.querySelector('input[name="msgType"]:checked').value;
+            const target = document.querySelector('input[name="broadcastTarget"]:checked').value;
+            const singleGroupJID = document.getElementById('singleGroupSelector').value;
             const fileInput = document.getElementById('mediaUpload');
             
             let options = [];
@@ -462,7 +542,11 @@
             }
 
             if(!msg && (!fileInput.files || fileInput.files.length === 0)) return alert("Message or Media cannot be entirely empty");
-            if(!confirm(`Send ${type} broadcast from this account to ALL its configured custom groups?`)) return;
+            if(target === 'single' && !singleGroupJID) return alert("Please select a target group.");
+            const confirmText = target === 'single'
+                ? `Send ${type} message from this account to the selected group only?`
+                : `Send ${type} broadcast from this account to ALL its configured custom groups?`;
+            if(!confirm(confirmText)) return;
 
             btn.innerText = "Sending..."; btn.disabled = true;
 
@@ -470,6 +554,9 @@
             formData.append('account_id', currentAccountID);
             formData.append('message', msg);
             formData.append('msg_type', type);
+            if (target === 'single') {
+                formData.append('jid', singleGroupJID);
+            }
             if (type === 'poll') {
                 formData.append('poll_options', options.join("||"));
             }
@@ -478,7 +565,8 @@
             }
 
             try {
-                const res = await fetch(`${API}/broadcast/custom`, {
+                const endpoint = target === 'single' ? `${API}/broadcast/group` : `${API}/broadcast/custom`;
+                const res = await fetch(endpoint, {
                     method: 'POST',
                     body: formData
                 });
@@ -504,6 +592,7 @@
         
         // Execute initially to set state
         togglePollOpts();
+        toggleBroadcastTarget();
 
         function addPollOption() {
             const div = document.createElement('div');

@@ -7,6 +7,7 @@ import (
 	"juraganxl-notif/internal/db"
 	"juraganxl-notif/internal/models"
 	"juraganxl-notif/internal/utils"
+	"log"
 	"strings"
 	"time"
 
@@ -16,23 +17,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-// BroadcastCustomMessage sends msg to Active Channel, then forwards it (sends to) all active Custom Groups
-func BroadcastCustomMessage(accountID uint, msg string, msgType string, pollOptions []string, fileBytes []byte, mime string) error {
-	client, ok := Clients[accountID]
-	if !ok || client == nil || !client.IsConnected() {
-		return errors.New("WhatsApp client is not connected")
-	}
-
-	var activeChannel models.ChannelTarget
-	if err := db.DB.First(&activeChannel, "account_id = ? AND is_active = ?", accountID, true).Error; err != nil {
-		return errors.New("No active channel selected")
-	}
-
-	chJID, err := ParseJID(activeChannel.JID)
-	if err != nil {
-		return err
-	}
-
+func buildCustomWAMessage(client *whatsmeow.Client, msg string, msgType string, pollOptions []string, fileBytes []byte, mime string) (*waE2E.Message, error) {
 	var waMsg *waE2E.Message
 
 	// Fallback Text-to-Image for View Once/SWGC that lacks a file attachment
@@ -72,7 +57,7 @@ func BroadcastCustomMessage(accountID uint, msg string, msgType string, pollOpti
 			mediaType = whatsmeow.MediaImage
 			resp, err := client.Upload(context.Background(), fileBytes, mediaType)
 			if err != nil {
-				return err
+				return nil, err
 			}
 
 			waMsg = &waE2E.Message{
@@ -92,7 +77,7 @@ func BroadcastCustomMessage(accountID uint, msg string, msgType string, pollOpti
 			mediaType = whatsmeow.MediaVideo
 			resp, err := client.Upload(context.Background(), fileBytes, mediaType)
 			if err != nil {
-				return err
+				return nil, err
 			}
 
 			waMsg = &waE2E.Message{
@@ -112,7 +97,7 @@ func BroadcastCustomMessage(accountID uint, msg string, msgType string, pollOpti
 			mediaType = whatsmeow.MediaAudio
 			resp, err := client.Upload(context.Background(), fileBytes, mediaType)
 			if err != nil {
-				return err
+				return nil, err
 			}
 
 			waMsg = &waE2E.Message{
@@ -170,33 +155,65 @@ func BroadcastCustomMessage(accountID uint, msg string, msgType string, pollOpti
 		}
 	}
 
+	return waMsg, nil
+}
+
+func attachChannelForwardContext(client *whatsmeow.Client, activeChannel models.ChannelTarget, waMsg *waE2E.Message) error {
+	chJID, err := ParseJID(activeChannel.JID)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.SendMessage(context.Background(), chJID, waMsg)
+	if err != nil {
+		return err
+	}
+
+	ctxInfo := &waE2E.ContextInfo{
+		IsForwarded: proto.Bool(true),
+		ForwardedNewsletterMessageInfo: &waE2E.ContextInfo_ForwardedNewsletterMessageInfo{
+			NewsletterJID:   proto.String(activeChannel.JID),
+			NewsletterName:  proto.String(activeChannel.ChannelName),
+			ServerMessageID: proto.Int32(int32(resp.ServerID)),
+		},
+	}
+
+	if waMsg.ExtendedTextMessage != nil {
+		waMsg.ExtendedTextMessage.ContextInfo = ctxInfo
+	}
+
+	return nil
+}
+
+// BroadcastCustomMessage sends msg to Active Channel, then forwards it (sends to) all active Custom Groups
+func BroadcastCustomMessage(accountID uint, msg string, msgType string, pollOptions []string, fileBytes []byte, mime string) error {
+	client, ok := Clients[accountID]
+	if !ok || client == nil || !client.IsConnected() {
+		return errors.New("WhatsApp client is not connected")
+	}
+
+	var activeChannel models.ChannelTarget
+	if err := db.DB.First(&activeChannel, "account_id = ? AND is_active = ?", accountID, true).Error; err != nil {
+		return errors.New("No active channel selected")
+	}
+
+	waMsg, err := buildCustomWAMessage(client, msg, msgType, pollOptions, fileBytes, mime)
+	if err != nil {
+		return err
+	}
+
 	// 1. Send to Channel ONLY for standard text (Channels strip polls and view once)
 	if msgType == "standard" {
-		resp, err := client.SendMessage(context.Background(), chJID, waMsg)
-		if err != nil {
+		if err := attachChannelForwardContext(client, activeChannel, waMsg); err != nil {
 			return err
-		}
-
-		// 2. Attach ContextInfo to make it Forwarded from Channel
-		ctxInfo := &waE2E.ContextInfo{
-			IsForwarded: proto.Bool(true),
-			ForwardedNewsletterMessageInfo: &waE2E.ContextInfo_ForwardedNewsletterMessageInfo{
-				NewsletterJID:   proto.String(activeChannel.JID),
-				NewsletterName:  proto.String(activeChannel.ChannelName),
-				ServerMessageID: proto.Int32(int32(resp.ServerID)),
-			},
-		}
-
-		if waMsg.ExtendedTextMessage != nil {
-			waMsg.ExtendedTextMessage.ContextInfo = ctxInfo
 		}
 	}
 
-	// 3. Fetch Target Custom Groups
+	// 2. Fetch Target Custom Groups
 	var groups []models.GroupTarget
 	db.DB.Where("account_id = ? AND is_custom_active = ?", accountID, true).Find(&groups)
 
-	// 4. Loop and send to Groups
+	// 3. Loop and send to Groups
 	for _, g := range groups {
 		gJID, err := ParseJID(g.JID)
 		if err == nil {
@@ -208,6 +225,45 @@ func BroadcastCustomMessage(accountID uint, msg string, msgType string, pollOpti
 	}
 
 	return nil
+}
+
+// SendCustomMessageToGroup sends one custom message to a single configured group.
+func SendCustomMessageToGroup(accountID uint, groupJID string, msg string, msgType string, pollOptions []string, fileBytes []byte, mime string) error {
+	client, ok := Clients[accountID]
+	if !ok || client == nil || !client.IsConnected() {
+		return errors.New("WhatsApp client is not connected")
+	}
+
+	var targetGroup models.GroupTarget
+	if err := db.DB.First(&targetGroup, "account_id = ? AND jid = ?", accountID, groupJID).Error; err != nil {
+		return errors.New("Target group is not synced for this account")
+	}
+
+	gJID, err := ParseJID(groupJID)
+	if err != nil {
+		return err
+	}
+
+	waMsg, err := buildCustomWAMessage(client, msg, msgType, pollOptions, fileBytes, mime)
+	if err != nil {
+		return err
+	}
+
+	// Preserve newsletter attribution for standard messages when an active channel exists.
+	if msgType == "standard" {
+		var activeChannel models.ChannelTarget
+		if err := db.DB.First(&activeChannel, "account_id = ? AND is_active = ?", accountID, true).Error; err == nil {
+			if err := attachChannelForwardContext(client, activeChannel, waMsg); err != nil {
+				log.Printf("[Account %d] Failed to attach channel attribution via %s: %v. Sending directly to group %s", accountID, activeChannel.JID, err, groupJID)
+			}
+		}
+	}
+
+	client.SendChatPresence(context.Background(), gJID, types.ChatPresenceComposing, types.ChatPresenceMediaText)
+	time.Sleep(1 * time.Second)
+	client.SendChatPresence(context.Background(), gJID, types.ChatPresencePaused, types.ChatPresenceMediaText)
+	_, err = client.SendMessage(context.Background(), gJID, waMsg)
+	return err
 }
 
 // BroadcastStockMessage sends the periodic diff to all active Accounts -> Active Channel and active Stock Groups

@@ -22,13 +22,17 @@ func SyncGroups(accountID uint) error {
 		return err
 	}
 
+	syncedJIDs := make([]string, 0, len(groups))
 	for _, g := range groups {
+		jid := g.JID.String()
+		syncedJIDs = append(syncedJIDs, jid)
+
 		var existing models.GroupTarget
-		res := db.DB.First(&existing, "account_id = ? AND jid = ?", accountID, g.JID.String())
+		res := db.DB.First(&existing, "account_id = ? AND jid = ?", accountID, jid)
 		if res.Error != nil { // Not found, create new
 			newGroup := models.GroupTarget{
 				AccountID:        accountID,
-				JID:              g.JID.String(),
+				JID:              jid,
 				GroupName:        g.Name,
 				IsStockActive:    false,
 				IsCustomActive:   false,
@@ -40,6 +44,13 @@ func SyncGroups(accountID uint) error {
 			db.DB.Save(&existing)
 		}
 	}
+
+	if len(syncedJIDs) == 0 {
+		db.DB.Where("account_id = ?", accountID).Delete(&models.GroupTarget{})
+	} else {
+		db.DB.Where("account_id = ? AND jid NOT IN ?", accountID, syncedJIDs).Delete(&models.GroupTarget{})
+	}
+
 	return nil
 }
 
@@ -55,13 +66,17 @@ func SyncChannels(accountID uint) error {
 		return err
 	}
 
+	syncedJIDs := make([]string, 0, len(channels))
 	for _, ch := range channels {
+		jid := ch.ID.String()
+		syncedJIDs = append(syncedJIDs, jid)
+
 		var existing models.ChannelTarget
-		res := db.DB.First(&existing, "account_id = ? AND jid = ?", accountID, ch.ID.String())
+		res := db.DB.First(&existing, "account_id = ? AND jid = ?", accountID, jid)
 		if res.Error != nil {
 			newCh := models.ChannelTarget{
 				AccountID:   accountID,
-				JID:         ch.ID.String(),
+				JID:         jid,
 				ChannelName: ch.ThreadMeta.Name.Text,
 				IsActive:    false,
 			}
@@ -71,6 +86,13 @@ func SyncChannels(accountID uint) error {
 			db.DB.Save(&existing)
 		}
 	}
+
+	if len(syncedJIDs) == 0 {
+		db.DB.Where("account_id = ?", accountID).Delete(&models.ChannelTarget{})
+	} else {
+		db.DB.Where("account_id = ? AND jid NOT IN ?", accountID, syncedJIDs).Delete(&models.ChannelTarget{})
+	}
+
 	return nil
 }
 
@@ -100,8 +122,16 @@ func UpdateGroupSettings(accountID uint, jid string, isStock, isCustom, isAntiSw
 }
 
 func SetActiveChannel(accountID uint, jid string) error {
+	var selected models.ChannelTarget
+	if err := db.DB.First(&selected, "account_id = ? AND jid = ?", accountID, jid).Error; err != nil {
+		return errors.New("Channel not found for this account")
+	}
+
 	// Deactivate all first
-	db.DB.Model(&models.ChannelTarget{}).Where("account_id = ? AND is_active = ?", accountID, true).Update("is_active", false)
+	if err := db.DB.Model(&models.ChannelTarget{}).Where("account_id = ? AND is_active = ?", accountID, true).Update("is_active", false).Error; err != nil {
+		return err
+	}
+
 	// Activate selected
 	return db.DB.Model(&models.ChannelTarget{}).Where("account_id = ? AND jid = ?", accountID, jid).Update("is_active", true).Error
 }

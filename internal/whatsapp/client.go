@@ -47,6 +47,17 @@ func GenerateQR(accountID uint) (<-chan whatsmeow.QRChannelItem, error) {
 		delete(Clients, accountID)
 	}
 
+	var oldConf models.AppConfig
+	if err := db.DB.First(&oldConf, "account_id = ? AND key = ?", accountID, "whatsmeow_db_path").Error; err == nil && oldConf.Value != "" {
+		os.Remove(oldConf.Value)
+	}
+
+	// A new QR session can be paired with a different WhatsApp identity.
+	// Clear discovered targets so the dashboard cannot reuse stale groups/channels.
+	db.DB.Where("account_id = ?", accountID).Delete(&models.GroupTarget{})
+	db.DB.Where("account_id = ?", accountID).Delete(&models.ChannelTarget{})
+	db.DB.Model(&models.Account{}).Where("id = ?", accountID).Update("is_connected", false)
+
 	sessionFile := filepath.Join("sessions", fmt.Sprintf("wa_session_acc%d_%d.db", accountID, time.Now().Unix()))
 
 	// Save the new DB path

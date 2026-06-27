@@ -38,6 +38,7 @@ func RegisterHandlers(r *gin.Engine) {
 		api.POST("/wa/channels/active", setActiveChannel)
 
 		api.POST("/broadcast/custom", sendCustomBroadcast)
+		api.POST("/broadcast/group", sendGroupBroadcast)
 
 		api.GET("/settings/auto-join", getAutoJoinSetting)
 		api.POST("/settings/auto-join", setAutoJoinSetting)
@@ -265,6 +266,60 @@ func sendCustomBroadcast(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Broadcast sent"})
+}
+
+func sendGroupBroadcast(c *gin.Context) {
+	if err := c.Request.ParseMultipartForm(10 << 20); err != nil { // limit 10MB
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse form data"})
+		return
+	}
+
+	accountIDStr := c.PostForm("account_id")
+	accountID, _ := strconv.ParseUint(accountIDStr, 10, 32)
+	jid := c.PostForm("jid")
+	msg := c.PostForm("message")
+	msgType := c.PostForm("msg_type")
+	if msgType == "" {
+		msgType = "standard"
+	}
+	pollOptsRaw := c.PostForm("poll_options")
+
+	if jid == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Target group jid is required"})
+		return
+	}
+
+	var pollOptions []string
+	if pollOptsRaw != "" {
+		pollOptions = strings.Split(pollOptsRaw, "||")
+	}
+	if msgType == "poll" && len(pollOptions) < 2 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Poll must have at least 2 options"})
+		return
+	}
+
+	var fileBytes []byte
+	var mimeType string
+
+	file, header, err := c.Request.FormFile("media")
+	if err == nil {
+		defer file.Close()
+		fileBytes, _ = io.ReadAll(file)
+		mimeType = header.Header.Get("Content-Type")
+	}
+
+	if msg == "" && len(fileBytes) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Message or media is required"})
+		return
+	}
+
+	err = whatsapp.SendCustomMessageToGroup(uint(accountID), jid, msg, msgType, pollOptions, fileBytes, mimeType)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Message sent to group"})
 }
 
 func getAutoJoinSetting(c *gin.Context) {
