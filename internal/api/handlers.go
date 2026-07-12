@@ -40,6 +40,9 @@ func RegisterHandlers(r *gin.Engine) {
 		api.POST("/broadcast/custom", sendCustomBroadcast)
 		api.POST("/broadcast/group", sendGroupBroadcast)
 
+		api.POST("/wa/close-friends/sync", syncCloseFriends)
+		api.POST("/wa/close-friends/reset", resetCloseFriends)
+
 		api.GET("/settings/auto-join", getAutoJoinSetting)
 		api.POST("/settings/auto-join", setAutoJoinSetting)
 
@@ -238,6 +241,9 @@ func sendCustomBroadcast(c *gin.Context) {
 
 	msg := c.PostForm("message")
 	msgType := c.PostForm("msg_type")
+	background := c.PostForm("background")
+	cfEmoji := c.PostForm("cf_emoji")
+	cfName := c.PostForm("cf_name")
 	pollOptsRaw := c.PostForm("poll_options")
 
 	var pollOptions []string
@@ -259,7 +265,7 @@ func sendCustomBroadcast(c *gin.Context) {
 		mimeType = header.Header.Get("Content-Type")
 	}
 
-	err = whatsapp.BroadcastCustomMessage(uint(accountID), msg, msgType, pollOptions, fileBytes, mimeType)
+	err = whatsapp.BroadcastCustomMessage(uint(accountID), msg, msgType, pollOptions, fileBytes, mimeType, background, cfEmoji, cfName)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -282,6 +288,9 @@ func sendGroupBroadcast(c *gin.Context) {
 	if msgType == "" {
 		msgType = "standard"
 	}
+	background := c.PostForm("background")
+	cfEmoji := c.PostForm("cf_emoji")
+	cfName := c.PostForm("cf_name")
 	pollOptsRaw := c.PostForm("poll_options")
 
 	if jid == "" {
@@ -313,13 +322,41 @@ func sendGroupBroadcast(c *gin.Context) {
 		return
 	}
 
-	err = whatsapp.SendCustomMessageToGroup(uint(accountID), jid, msg, msgType, pollOptions, fileBytes, mimeType)
+	err = whatsapp.SendCustomMessageToGroup(uint(accountID), jid, msg, msgType, pollOptions, fileBytes, mimeType, background, cfEmoji, cfName)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Message sent to group"})
+}
+
+func syncCloseFriends(c *gin.Context) {
+	accountIDStr := c.PostForm("account_id")
+	if accountIDStr == "" {
+		accountIDStr = c.Query("account_id")
+	}
+	accountID, _ := strconv.ParseUint(accountIDStr, 10, 32)
+
+	if err := whatsapp.SyncCloseFriendsFromActiveGroups(uint(accountID)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Close-friends list synced from active groups"})
+}
+
+func resetCloseFriends(c *gin.Context) {
+	accountIDStr := c.PostForm("account_id")
+	if accountIDStr == "" {
+		accountIDStr = c.Query("account_id")
+	}
+	accountID, _ := strconv.ParseUint(accountIDStr, 10, 32)
+
+	if err := whatsapp.ResetCloseFriendsList(uint(accountID)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Close-friends list reset to default (contacts)"})
 }
 
 func getAutoJoinSetting(c *gin.Context) {

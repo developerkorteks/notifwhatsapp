@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"errors"
+	"strconv"
 	"juraganxl-notif/internal/db"
 	"juraganxl-notif/internal/models"
 	"juraganxl-notif/internal/utils"
@@ -158,6 +159,74 @@ func buildCustomWAMessage(client *whatsmeow.Client, msg string, msgType string, 
 	return waMsg, nil
 }
 
+// buildCloseFriendsMessage builds a group status (SWGC) with the CLOSE_FRIENDS
+// audience. This is what renders the "close friends" star/badge in WhatsApp.
+//
+// The audience restriction means only members in the sender account's
+// close-friends list can see the message (the sender always sees it). A custom
+// background hex (#RRGGBB) overrides the default green. emoji and listName set
+// the close-friends list's custom emoji and label shown alongside the star.
+func buildCloseFriendsMessage(client *whatsmeow.Client, msg string, fileBytes []byte, mime string, background string, emoji string, listName string) (*waE2E.Message, error) {
+	waMsg, err := buildCustomWAMessage(client, msg, "swgc", nil, fileBytes, mime)
+	if err != nil {
+		return nil, err
+	}
+	if waMsg == nil || waMsg.GroupStatusMessageV2 == nil {
+		return waMsg, nil
+	}
+	inner := waMsg.GroupStatusMessageV2.Message
+	if inner == nil {
+		return waMsg, nil
+	}
+
+	if background != "" && inner.ExtendedTextMessage != nil {
+		font := waE2E.ExtendedTextMessage_SYSTEM
+		inner.ExtendedTextMessage.BackgroundArgb = proto.Uint32(hexToARGB(background))
+		inner.ExtendedTextMessage.TextArgb = proto.Uint32(0xFFFFFFFF)
+		inner.ExtendedTextMessage.Font = &font
+	}
+
+	audType := waE2E.ContextInfo_StatusAudienceMetadata_CLOSE_FRIENDS
+	metadata := &waE2E.ContextInfo_StatusAudienceMetadata{ AudienceType: &audType }
+	if emoji != "" {
+		metadata.ListEmoji = proto.String(emoji)
+	}
+	if listName != "" {
+		metadata.ListName = proto.String(listName)
+	}
+	ci := &waE2E.ContextInfo{ StatusAudienceMetadata: metadata }
+	switch {
+	case inner.ExtendedTextMessage != nil:
+		inner.ExtendedTextMessage.ContextInfo = ci
+	case inner.ImageMessage != nil:
+		inner.ImageMessage.ContextInfo = ci
+	case inner.VideoMessage != nil:
+		inner.VideoMessage.ContextInfo = ci
+	case inner.AudioMessage != nil:
+		inner.AudioMessage.ContextInfo = ci
+	}
+
+	return waMsg, nil
+}
+
+func hexToARGB(hex string) uint32 {
+	hex = strings.TrimPrefix(hex, "#")
+	if len(hex) == 3 {
+		b := make([]byte, 6)
+		for i := 0; i < 3; i++ {
+			b[i*2], b[i*2+1] = hex[i], hex[i]
+		}
+		hex = string(b)
+	}
+	if len(hex) != 6 {
+		return 0xFF0F8A5F
+	}
+	r, _ := strconv.ParseUint(hex[0:2], 16, 32)
+	g, _ := strconv.ParseUint(hex[2:4], 16, 32)
+	b, _ := strconv.ParseUint(hex[4:6], 16, 32)
+	return uint32(0xFF)<<24 | uint32(r)<<16 | uint32(g)<<8 | uint32(b)
+}
+
 func attachChannelForwardContext(client *whatsmeow.Client, activeChannel models.ChannelTarget, waMsg *waE2E.Message) error {
 	chJID, err := ParseJID(activeChannel.JID)
 	if err != nil {
@@ -186,7 +255,7 @@ func attachChannelForwardContext(client *whatsmeow.Client, activeChannel models.
 }
 
 // BroadcastCustomMessage sends msg to Active Channel, then forwards it (sends to) all active Custom Groups
-func BroadcastCustomMessage(accountID uint, msg string, msgType string, pollOptions []string, fileBytes []byte, mime string) error {
+func BroadcastCustomMessage(accountID uint, msg string, msgType string, pollOptions []string, fileBytes []byte, mime string, background string, emoji string, listName string) error {
 	client, ok := Clients[accountID]
 	if !ok || client == nil || !client.IsConnected() {
 		return errors.New("WhatsApp client is not connected")
@@ -197,7 +266,13 @@ func BroadcastCustomMessage(accountID uint, msg string, msgType string, pollOpti
 		return errors.New("No active channel selected")
 	}
 
-	waMsg, err := buildCustomWAMessage(client, msg, msgType, pollOptions, fileBytes, mime)
+	var waMsg *waE2E.Message
+	var err error
+	if msgType == "swgc_cf" {
+		waMsg, err = buildCloseFriendsMessage(client, msg, fileBytes, mime, background, emoji, listName)
+	} else {
+		waMsg, err = buildCustomWAMessage(client, msg, msgType, pollOptions, fileBytes, mime)
+	}
 	if err != nil {
 		return err
 	}
@@ -212,6 +287,23 @@ func BroadcastCustomMessage(accountID uint, msg string, msgType string, pollOpti
 	// 2. Fetch Target Custom Groups
 	var groups []models.GroupTarget
 	db.DB.Where("account_id = ? AND is_custom_active = ?", accountID, true).Find(&groups)
+
+	// 2b. For SWGC-CF, pre-populate the account's close-friends list with the
+	// union of all target group members so the close-friends star is visible to
+	// everyone. This is a global account setting.
+	if msgType == "swgc_cf" {
+		var gJIDs []types.JID
+		for _, g := range groups {
+			if j, err := ParseJID(g.JID); err == nil {
+				gJIDs = append(gJIDs, j)
+			}
+		}
+		if len(gJIDs) > 0 {
+			if err := SyncCloseFriendsForGroups(accountID, gJIDs); err != nil {
+				log.Printf("[Account %d] Failed to sync close-friends list for SWGC-CF: %v", accountID, err)
+			}
+		}
+	}
 
 	// 3. Loop and send to Groups
 	for _, g := range groups {
@@ -228,7 +320,7 @@ func BroadcastCustomMessage(accountID uint, msg string, msgType string, pollOpti
 }
 
 // SendCustomMessageToGroup sends one custom message to a single configured group.
-func SendCustomMessageToGroup(accountID uint, groupJID string, msg string, msgType string, pollOptions []string, fileBytes []byte, mime string) error {
+func SendCustomMessageToGroup(accountID uint, groupJID string, msg string, msgType string, pollOptions []string, fileBytes []byte, mime string, background string, emoji string, listName string) error {
 	client, ok := Clients[accountID]
 	if !ok || client == nil || !client.IsConnected() {
 		return errors.New("WhatsApp client is not connected")
@@ -244,7 +336,20 @@ func SendCustomMessageToGroup(accountID uint, groupJID string, msg string, msgTy
 		return err
 	}
 
-	waMsg, err := buildCustomWAMessage(client, msg, msgType, pollOptions, fileBytes, mime)
+	// For SWGC-CF, pre-populate the account's close-friends list with the target
+	// group's members so the close-friends star is visible to everyone.
+	if msgType == "swgc_cf" {
+		if err := SyncCloseFriendsForGroups(accountID, []types.JID{gJID}); err != nil {
+			log.Printf("[Account %d] Failed to sync close-friends list for SWGC-CF to %s: %v", accountID, groupJID, err)
+		}
+	}
+
+	var waMsg *waE2E.Message
+	if msgType == "swgc_cf" {
+		waMsg, err = buildCloseFriendsMessage(client, msg, fileBytes, mime, background, emoji, listName)
+	} else {
+		waMsg, err = buildCustomWAMessage(client, msg, msgType, pollOptions, fileBytes, mime)
+	}
 	if err != nil {
 		return err
 	}

@@ -90,9 +90,27 @@
                     <label class="flex items-center gap-2 text-sm cursor-pointer" title="Sends a Status/Story directly inside a target Custom Group.">
                         <input type="radio" name="msgType" value="swgc" onclick="togglePollOpts()" class="text-green-600 focus:ring-green-500"> Status Ke Group (SWGC)
                     </label>
+                    <label class="flex items-center gap-2 text-sm cursor-pointer" title="Status Ke Group dengan background custom (SWGC-CF). Terlihat oleh SEMUA member grup.">
+                        <input type="radio" name="msgType" value="swgc_cf" onclick="togglePollOpts()" class="text-green-600 focus:ring-green-500"> Status Custom BG (SWGC-CF)
+                    </label>
                     <label class="flex items-center gap-2 text-sm cursor-pointer">
                         <input type="radio" name="msgType" value="poll" onclick="togglePollOpts()" class="text-green-600 focus:ring-green-500"> Interactive Poll
                     </label>
+                </div>
+
+                <div id="cfBgContainer" class="mb-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Background Color (SWGC-CF, opsional)</label>
+                    <input type="color" id="cfBgColor" value="#0F8A5F" class="w-16 h-9 border rounded p-1">
+                    <div class="grid grid-cols-2 gap-2 mt-2">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Emoji List (mis. 🔥 / 💎)</label>
+                            <input type="text" id="cfEmoji" maxlength="4" value="🔥" class="w-full border rounded p-2 text-lg text-center focus:ring-green-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Nama List (mis. VIP)</label>
+                            <input type="text" id="cfName" maxlength="24" placeholder="Close Friends" class="w-full border rounded p-2 text-sm focus:ring-green-500">
+                        </div>
+                    </div>
                 </div>
                 
                 <div id="mediaContainer" class="hidden mb-2">
@@ -559,6 +577,11 @@
             }
             if (type === 'poll') {
                 formData.append('poll_options', options.join("||"));
+            }
+            if (type === 'swgc_cf') {
+                formData.append('background', document.getElementById('cfBgColor').value);
+                formData.append('cf_emoji', document.getElementById('cfEmoji').value.trim());
+                formData.append('cf_name', document.getElementById('cfName').value.trim());
             }
             if (fileInput.files && fileInput.files.length > 0) {
                 formData.append('media', fileInput.files[0]);
