@@ -159,55 +159,52 @@ func hasChanged(key, newData string) bool {
 }
 
 func formatNotificationMessage(xda []Paket, xclp []CircleStock, v2 []APIV2Product) string {
-	var xdaContent strings.Builder
+	// AKRAB = XDA (scrape) + XLA (Provider V2, kode awalan XLA)
+	var akrabContent strings.Builder
 	for _, p := range xda {
 		if p.Stock != "0" && p.Stock != "" {
-			xdaContent.WriteString(fmt.Sprintf("- %s = %s\n", p.Code, p.Stock))
+			akrabContent.WriteString(fmt.Sprintf("- %s = %s\n", p.Code, p.Stock))
+		}
+	}
+	for _, p := range v2 {
+		if p.Stok > 0 && strings.HasPrefix(strings.ToUpper(p.KodeProduk), "XLA") {
+			akrabContent.WriteString(fmt.Sprintf("- %s = %d\n", p.KodeProduk, p.Stok))
 		}
 	}
 
-	var xclpContent strings.Builder
+	// CIRCLE = XCLP (circle stock) + "XL Data Akrab Kuota Bersama" (Provider V2)
+	var circleContent strings.Builder
 	for _, p := range xclp {
 		if p.Count > 0 {
-			xclpContent.WriteString(fmt.Sprintf("- %s = %d\n", p.Config, p.Count))
+			circleContent.WriteString(fmt.Sprintf("- %s = %d\n", p.Config, p.Count))
 		}
 	}
-
-	var v2Content strings.Builder
 	for _, p := range v2 {
-		if p.Stok > 0 {
-			v2Content.WriteString(fmt.Sprintf("- [%s] %s = %d\n", p.KodeProduk, p.NamaProduk, p.Stok))
+		if p.Stok > 0 && strings.Contains(strings.ToUpper(p.NamaProduk), "XL DATA AKRAB KUOTA BERSAMA") {
+			circleContent.WriteString(fmt.Sprintf("- %s = %d\n", p.KodeProduk, p.Stok))
 		}
 	}
 
-	if xdaContent.Len() == 0 && xclpContent.Len() == 0 && v2Content.Len() == 0 {
+	if akrabContent.Len() == 0 && circleContent.Len() == 0 {
 		return ""
 	}
 
 	var sb strings.Builder
 
-	sb.WriteString("📢 *UPDATE STOCK TERKINI*\n")
+	sb.WriteString("*UPDATE STOCK TERKINI*\n")
 	sb.WriteString("===========================\n\n")
 
-	if xdaContent.Len() > 0 {
-		sb.WriteString("*STOCK XDA:*\n")
-		sb.WriteString(xdaContent.String())
+	if akrabContent.Len() > 0 {
+		sb.WriteString("*AKRAB*\n")
+		sb.WriteString(akrabContent.String())
 	}
 
-	if xclpContent.Len() > 0 {
-		if xdaContent.Len() > 0 {
+	if circleContent.Len() > 0 {
+		if akrabContent.Len() > 0 {
 			sb.WriteString("\n")
 		}
-		sb.WriteString("*STOCK XCLP:*\n")
-		sb.WriteString(xclpContent.String())
-	}
-
-	if v2Content.Len() > 0 {
-		if xdaContent.Len() > 0 || xclpContent.Len() > 0 {
-			sb.WriteString("\n")
-		}
-		sb.WriteString("*STOCK PROVIDER V2:*\n")
-		sb.WriteString(v2Content.String())
+		sb.WriteString("*CIRCLE*\n")
+		sb.WriteString(circleContent.String())
 	}
 
 	sb.WriteString("\n===========================\n")
